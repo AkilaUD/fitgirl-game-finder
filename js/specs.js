@@ -193,11 +193,9 @@ export async function detectGpu() {
 
 export async function scanPc() {
   const gpu = await detectGpu();
-  let freeGb = null;
-  try {
-    const est = await navigator.storage.estimate();
-    if (est && est.quota) freeGb = Math.round(((est.quota - (est.usage || 0)) / 1e9) * 10) / 10;
-  } catch {}
+  // No free-disk figure here on purpose: navigator.storage.estimate() reports this
+  // origin's storage quota, not disk space, and using it made every repack fail the
+  // storage check when the site was hosted. The local helper reports real drives.
   const mem = navigator.deviceMemory || null;
   return {
     gpu: gpu ? gpu.name : '',
@@ -207,7 +205,7 @@ export async function scanPc() {
     ramCapped: mem === 8,
     screen: `${screen.width}x${screen.height}`,
     dpr: window.devicePixelRatio || 1,
-    freeGb,
+    freeGb: null,
     platform: navigator.userAgentData?.platform || navigator.platform || '',
     touch: navigator.maxTouchPoints > 0,
   };

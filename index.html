@@ -72,7 +72,7 @@
     <div id="rigDetected" class="detected muted"></div>
     <div id="rigSummary" class="rig-summary"></div>
   </div>
-  <p class="fineprint">Served from <code>node scripts/serve.mjs</code>, the scan reads the real CPU model, total RAM and the free space on <b>every drive</b> from this machine, adding them up for the storage check. Opened without the helper, it falls back to the browser's GPU name, thread count and a memory figure capped at 8 GB. Nothing leaves the machine, and every field stays editable.</p>
+  <p class="fineprint">The scan always runs here in the browser, so nothing leaves your machine. In a hosted copy it can only read the GPU name, thread count and a RAM figure capped at 8 GB — the CPU model and free disk space have to be typed in. Run the site locally with <code>node scripts/serve.mjs</code> and the helper reports the real CPU model, total RAM and the free space on <b>every drive</b>. Every field stays editable.</p>
 </section>
 
 <main class="layout">

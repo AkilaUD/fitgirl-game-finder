@@ -17,8 +17,15 @@ Open <http://127.0.0.1:5180>. Use the server rather than opening `index.html` di
 - **With the server running** the scan is exact: it reads the CPU model, total RAM, the free space on
   **every drive** (added together for the storage check) and the installed GPU names from this machine.
   It still uses the browser for the display and the GPU as a cross-check.
-- **Opened as a static file** it falls back to what a browser is allowed to see: GPU name via WebGPU/
-  WebGL, thread count, free space for the page's origin, and a RAM figure capped at 8 GB.
+- **Opened as a static file, or hosted on a static host such as Vercel** it falls back to what a browser
+  is allowed to see: the GPU name via WebGPU/WebGL, the thread count and a RAM figure capped at 8 GB
+  (shown as `8+`). It deliberately leaves the CPU model and free disk space blank — a browser cannot read
+  them, and its storage quota is not disk space — so fill those two fields in for an accurate match.
+
+`/api/system` only exists in `scripts/serve.mjs`, so on a static host every scan is the browser estimate
+above; the page probes the endpoint and falls back on its own. The same is true of `POST /api/contact`:
+mail delivery needs the Node server, so a static deployment shows the form's "endpoint is not reachable"
+message.
 
 Both GPU and CPU fields accept free text with autocomplete from `data/suggestions.json` (every model
 named in the requirement data), and RAM has one-click 8/16/32/64 GB presets. Every value stays

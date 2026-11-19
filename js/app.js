@@ -127,12 +127,13 @@ function paintRig() {
   if (d.cpu) bits.push(`<span>CPU <b>${esc(String(d.cpu).replace(/\s+/g, ' '))}</b></span>`);
   if (d.cores) bits.push(`<span><b>${d.cores}</b> threads</span>`);
   if (d.ramGb) bits.push(`<span>RAM <b>${d.ramGb} GB</b></span>`);
+  else if (d.ram) bits.push(`<span>RAM <b>${d.ram}${d.ramCapped ? '+' : ''} GB</b> (browser estimate)</span>`);
   if (d.drives && d.drives.length) {
     bits.push(`<span>Drives <b>${d.drives.map((x) => `${x.mount} ${Math.round(x.freeGb)} GB free`).join(' · ')}</b></span>`);
   }
   if (d.screen) bits.push(`<span>Display <b>${d.screen}</b>${d.dpr > 1 ? ` @${d.dpr}x` : ''}</span>`);
   if (d.platform) bits.push(`<span>Platform <b>${d.platform}</b></span>`);
-  if (d.source === 'browser') bits.push('<span>Browser estimate — exact CPU, RAM and drives need <code>node scripts/serve.mjs</code></span>');
+  if (d.source === 'browser') bits.push('<span>Browser estimate — this browser cannot read your CPU model or free disk space; type them in below, or run the site locally with <code>node scripts/serve.mjs</code> for exact detection.</span>');
   $('#rigDetected').innerHTML = bits.join('');
 
   $('#clearBtn').hidden = !hasRig();
@@ -151,8 +152,11 @@ function paintRig() {
     if (v === 'rec') { runnable++; great++; }
     else if (v === 'min') runnable++;
   }
-  const missing = !rig.gpu ? ' Add your graphics card for accurate matching.' : '';
-  status.textContent = `Matched against ${games.filter((g) => g.steam).length.toLocaleString()} repacks that have published requirements.${missing}`;
+  const missing = [];
+  if (!rig.gpu) missing.push('graphics card');
+  if (rig.freeGb == null) missing.push('free disk space');
+  const hint = missing.length ? ` Add your ${missing.join(' and ')} for accurate matching.` : '';
+  status.textContent = `Matched against ${games.filter((g) => g.steam).length.toLocaleString()} repacks that have published requirements.${hint}`;
   $('#rigSummary').innerHTML = `<strong>${runnable.toLocaleString()}</strong> repacks should run · <strong>${great.toLocaleString()}</strong> hit recommended specs`;
 }
 
@@ -438,8 +442,9 @@ async function runScan() {
     } else {
       detected.source = 'browser';
       if (browser.gpu) rig.gpu = browser.gpu;
-      if (browser.ram && !rig.ram) rig.ram = browser.ram;
-      if (browser.freeGb) rig.freeGb = Math.round(browser.freeGb);
+      // Only trust an exact memory figure: the API caps out at 8 GB and would
+      // under-report bigger machines to every game's RAM requirement.
+      if (browser.ram && !browser.ramCapped && !rig.ram) rig.ram = browser.ram;
     }
 
     syncRigInputs();
