@@ -82,8 +82,7 @@ export function ScanWizard({
         <section className="scan-step">
           <h4>Step 2 — Full hardware (Windows)</h4>
           <p className="muted scan-step-lede">
-            Download the portable scanner (zip), extract it, run <strong>Run-Scanner.cmd</strong>, enter the pairing
-            code below, and confirm upload.
+            Download and run <strong>FitGirl PC Scanner</strong>, enter the pairing code below, and confirm upload.
           </p>
           <a
             className="btn primary"
@@ -93,11 +92,11 @@ export function ScanWizard({
               ? {}
               : { target: '_blank', rel: 'noopener noreferrer' })}
           >
-            Download portable scanner (.zip)
+            Download FitGirl PC Scanner (.exe)
           </a>
           <p className="muted">
-            No install — extract the zip and run <strong>Run-Scanner.cmd</strong>. The file is hosted from this
-            project&apos;s repo; same-site URLs apply when the latest Vercel deploy is live.
+            Single Windows installer — run it, enter your pairing code, confirm upload. Rebuild with{' '}
+            <code>npm run scanner:build-exe</code> on Windows if you change the scanner.
           </p>
         </section>
 

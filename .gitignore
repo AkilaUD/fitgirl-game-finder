@@ -7,3 +7,4 @@ __pycache__/
 screenshots/
 .cloud-attachments/
 .freebuff/
+scripts/.ScannerLauncher.generated.cs

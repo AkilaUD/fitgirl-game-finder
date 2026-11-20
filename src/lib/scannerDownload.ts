@@ -1,15 +1,12 @@
-/** Portable zip (always in repo). Full NSIS installer uses FitGirlPcScanner-setup.exe when built. */
-export const SCANNER_DOWNLOAD_FILENAME = 'FitGirlPcScanner-portable.zip';
+export const SCANNER_DOWNLOAD_FILENAME = 'FitGirlPcScanner-setup.exe';
 
-export const BUNDLED_SCANNER_EXE = '/downloads/FitGirlPcScanner-setup.exe';
-/** Static path (Vite `public/`); Vercel may also serve via `/api/scanner-download`. */
-export const BUNDLED_SCANNER_STATIC = `/downloads/${SCANNER_DOWNLOAD_FILENAME}`;
-/** GET on the pair route returns the portable scanner zip; POST starts pairing. */
+export const BUNDLED_SCANNER_EXE = `/downloads/${SCANNER_DOWNLOAD_FILENAME}`;
+export const BUNDLED_SCANNER_STATIC = BUNDLED_SCANNER_EXE;
+/** GET on pair returns the installer; POST starts pairing. */
 export const BUNDLED_SCANNER_API = '/api/pc-scan/pair';
 
-/** Same file in git — works when Vercel static/API deploy is behind. */
-export const SCANNER_ZIP_GITHUB =
-  'https://raw.githubusercontent.com/AkilaUD/fitgirl-game-finder/main/public/downloads/FitGirlPcScanner-portable.zip';
+export const SCANNER_EXE_GITHUB =
+  'https://raw.githubusercontent.com/AkilaUD/fitgirl-game-finder/main/public/downloads/FitGirlPcScanner-setup.exe';
 
 export interface ScannerDownloadLink {
   href: string;
@@ -28,8 +25,8 @@ export function resolveScannerDownload(): ScannerDownloadLink {
     return { href: override, bundled, directDownload };
   }
   return {
-    href: SCANNER_ZIP_GITHUB,
+    href: SCANNER_EXE_GITHUB,
     bundled: false,
-    directDownload: false,
+    directDownload: true,
   };
 }
