@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { apiUrl } from '../lib/apiBase';
 import type { HardwareReport } from '../lib/hardwareReport';
 import { pcScanHttpError } from '../lib/pcScanApiErrors';
 
@@ -36,13 +37,19 @@ export function usePcScanPairing(onReport: (report: HardwareReport) => void) {
     async (sessionId: string) => {
       setPhase('consuming');
       try {
-        const r = await fetch('/api/pc-scan/consume', {
+        const r = await fetch(apiUrl('/api/pc-scan/consume'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sessionId }),
         });
         const body = await r.json().catch(() => ({}));
-        if (!r.ok) throw pcScanHttpError(r.status, (body as { error?: string }).error);
+        if (!r.ok) {
+        const errBody = body as { error?: string; setup?: string };
+        throw pcScanHttpError(
+          r.status,
+          errBody.setup ? `${errBody.error ?? ''} ${errBody.setup}` : errBody.error,
+        );
+      }
         const report = (body as { report: HardwareReport }).report;
         onReport(report);
         sessionStorage.removeItem(SESSION_KEY);
@@ -60,9 +67,15 @@ export function usePcScanPairing(onReport: (report: HardwareReport) => void) {
     setError(null);
     setPhase('pairing');
     try {
-      const r = await fetch('/api/pc-scan/pair', { method: 'POST' });
+      const r = await fetch(apiUrl('/api/pc-scan/pair'), { method: 'POST' });
       const body = await r.json().catch(() => ({}));
-      if (!r.ok) throw pcScanHttpError(r.status, (body as { error?: string }).error);
+      if (!r.ok) {
+        const errBody = body as { error?: string; setup?: string };
+        throw pcScanHttpError(
+          r.status,
+          errBody.setup ? `${errBody.error ?? ''} ${errBody.setup}` : errBody.error,
+        );
+      }
       const next: PairingSession = {
         sessionId: body.sessionId,
         pairingCode: body.pairingCode,
@@ -83,7 +96,7 @@ export function usePcScanPairing(onReport: (report: HardwareReport) => void) {
     const poll = async () => {
       try {
         const r = await fetch(
-          `/api/pc-scan/status?sessionId=${encodeURIComponent(session.sessionId)}`,
+          `${apiUrl('/api/pc-scan/status')}?sessionId=${encodeURIComponent(session.sessionId)}`,
           { cache: 'no-store' },
         );
         const body = await r.json().catch(() => ({}));

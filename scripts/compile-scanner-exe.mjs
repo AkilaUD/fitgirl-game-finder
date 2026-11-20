@@ -1,24 +1,15 @@
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const scriptPath = join(root, 'tools', 'pc-scanner-portable', 'Scan.ps1');
-const stubPath = join(root, 'scripts', 'ScannerLauncher.cs');
+const winSrc = join(root, 'scripts', 'scanner-win');
 const outDir = join(root, 'public', 'downloads');
 const apiData = join(root, 'api', '_data');
 const exeName = 'FitGirlPcScanner-setup.exe';
 const outExe = join(outDir, exeName);
-
-const ps1 = readFileSync(scriptPath);
-const b64 = ps1.toString('base64');
-
-let stub = readFileSync(stubPath, 'utf8');
-stub = stub.replace('__SCRIPT_B64__', b64);
-
-const genCs = join(root, 'scripts', '.ScannerLauncher.generated.cs');
-writeFileSync(genCs, stub, 'utf8');
+const manifest = join(winSrc, 'app.manifest');
 
 const csc = join(
   process.env.WINDIR || 'C:\\Windows',
@@ -28,9 +19,61 @@ const csc = join(
   'csc.exe',
 );
 
+if (!existsSync(csc)) {
+  console.error('csc.exe not found — build the scanner .exe on Windows with .NET Framework 4.x.');
+  process.exit(1);
+}
+
+const sources = readdirSync(winSrc)
+  .filter((f) => f.endsWith('.cs'))
+  .map((f) => join(winSrc, f));
+
+const refs = [
+  'System.dll',
+  'System.Windows.Forms.dll',
+  'System.Drawing.dll',
+  'System.Management.dll',
+  'System.Web.Extensions.dll',
+];
+
 mkdirSync(outDir, { recursive: true });
 mkdirSync(apiData, { recursive: true });
 
-execFileSync(csc, ['/nologo', '/target:exe', `/out:${outExe}`, genCs], { stdio: 'inherit' });
+const args = [
+  '/nologo',
+  '/target:winexe',
+  '/platform:anycpu',
+  '/optimize+',
+  `/win32manifest:${manifest}`,
+  ...refs.map((r) => `/reference:${join(process.env.WINDIR || 'C:\\Windows', 'Microsoft.NET', 'Framework64', 'v4.0.30319', r)}`),
+  `/out:${outExe}`,
+  ...sources,
+];
+
+execFileSync(csc, args, { stdio: 'inherit' });
+
+const pfx = process.env.SCANNER_CODESIGN_PFX?.trim();
+const pfxPass = process.env.SCANNER_CODESIGN_PASSWORD ?? '';
+if (pfx && existsSync(pfx)) {
+  const signtool = join(
+    process.env.ProgramFiles(x86) || 'C:\\Program Files (x86)',
+    'Windows Kits',
+    '10',
+    'bin',
+    '10.0.22621.0',
+    'x64',
+    'signtool.exe',
+  );
+  if (existsSync(signtool)) {
+    const signArgs = ['sign', '/fd', 'SHA256', '/tr', 'http://timestamp.digicert.com', '/td', 'SHA256', '/f', pfx];
+    if (pfxPass) signArgs.push('/p', pfxPass);
+    signArgs.push(outExe);
+    execFileSync(signtool, signArgs, { stdio: 'inherit' });
+    console.log('Signed', exeName);
+  } else {
+    console.warn('signtool not found — ship unsigned or set SCANNER_CODESIGN_PFX after installing Windows SDK');
+  }
+}
+
 copyFileSync(outExe, join(apiData, exeName));
-console.log(`Created ${outExe} (${readFileSync(outExe).length} bytes)`);
+console.log(`Created ${outExe} (${statSync(outExe).size} bytes, WinForms GUI)`);
