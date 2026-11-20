@@ -5,7 +5,9 @@ type Phase = 'idle' | 'scanning' | 'review' | 'uploading' | 'done' | 'error';
 
 export default function App() {
   const [code, setCode] = useState('');
-  const [apiBase, setApiBase] = useState('https://fitgirl-game-finder.vercel.app');
+  const defaultApiBase =
+    typeof window !== 'undefined' ? window.location.origin : 'https://fitgirl-game-finder.vercel.app';
+  const [apiBase, setApiBase] = useState(defaultApiBase);
   const [phase, setPhase] = useState<Phase>('idle');
   const [reportJson, setReportJson] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);

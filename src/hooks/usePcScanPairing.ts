@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { apiUrl } from '../lib/apiBase';
 import type { HardwareReport } from '../lib/hardwareReport';
 import { pcScanHttpError } from '../lib/pcScanApiErrors';
 
@@ -36,7 +37,7 @@ export function usePcScanPairing(onReport: (report: HardwareReport) => void) {
     async (sessionId: string) => {
       setPhase('consuming');
       try {
-        const r = await fetch('/api/pc-scan/consume', {
+        const r = await fetch(apiUrl('/api/pc-scan/consume'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sessionId }),
@@ -60,7 +61,7 @@ export function usePcScanPairing(onReport: (report: HardwareReport) => void) {
     setError(null);
     setPhase('pairing');
     try {
-      const r = await fetch('/api/pc-scan/pair', { method: 'POST' });
+      const r = await fetch(apiUrl('/api/pc-scan/pair'), { method: 'POST' });
       const body = await r.json().catch(() => ({}));
       if (!r.ok) throw pcScanHttpError(r.status, (body as { error?: string }).error);
       const next: PairingSession = {
@@ -83,7 +84,7 @@ export function usePcScanPairing(onReport: (report: HardwareReport) => void) {
     const poll = async () => {
       try {
         const r = await fetch(
-          `/api/pc-scan/status?sessionId=${encodeURIComponent(session.sessionId)}`,
+          `${apiUrl('/api/pc-scan/status')}?sessionId=${encodeURIComponent(session.sessionId)}`,
           { cache: 'no-store' },
         );
         const body = await r.json().catch(() => ({}));
