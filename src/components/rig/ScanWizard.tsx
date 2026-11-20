@@ -95,12 +95,10 @@ export function ScanWizard({
           >
             Download portable scanner (.zip)
           </a>
-          {scannerDownload.bundled ? (
-            <p className="muted">
-              No install needed — extract the zip and run Run-Scanner.cmd. A full .exe installer is optional after{' '}
-              <code>npm run scanner:build</code>.
-            </p>
-          ) : null}
+          <p className="muted">
+            No install — extract the zip and run <strong>Run-Scanner.cmd</strong>. The file is hosted from this
+            project&apos;s repo; same-site URLs apply when the latest Vercel deploy is live.
+          </p>
         </section>
 
         <section className="scan-step">

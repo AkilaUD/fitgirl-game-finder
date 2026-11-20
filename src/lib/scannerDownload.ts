@@ -7,6 +7,10 @@ export const BUNDLED_SCANNER_STATIC = `/downloads/${SCANNER_DOWNLOAD_FILENAME}`;
 /** GET on the pair route returns the portable scanner zip; POST starts pairing. */
 export const BUNDLED_SCANNER_API = '/api/pc-scan/pair';
 
+/** Same file in git — works when Vercel static/API deploy is behind. */
+export const SCANNER_ZIP_GITHUB =
+  'https://raw.githubusercontent.com/AkilaUD/fitgirl-game-finder/main/public/downloads/FitGirlPcScanner-portable.zip';
+
 export interface ScannerDownloadLink {
   href: string;
   /** Same-origin file in the repo / on Vercel static hosting */
@@ -24,8 +28,8 @@ export function resolveScannerDownload(): ScannerDownloadLink {
     return { href: override, bundled, directDownload };
   }
   return {
-    href: BUNDLED_SCANNER_API,
-    bundled: true,
-    directDownload: true,
+    href: SCANNER_ZIP_GITHUB,
+    bundled: false,
+    directDownload: false,
   };
 }
