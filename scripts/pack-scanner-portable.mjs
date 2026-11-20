@@ -8,6 +8,7 @@ const srcDir = join(root, 'tools', 'pc-scanner-portable');
 const outDir = join(root, 'public', 'downloads');
 const apiDataDir = join(root, 'api', '_data');
 const zipName = 'FitGirlPcScanner-portable.zip';
+const exeName = 'FitGirlPcScanner-setup.exe';
 const zipPath = join(outDir, zipName);
 const apiZipPath = join(apiDataDir, zipName);
 

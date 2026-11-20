@@ -1,27 +1,13 @@
 # FitGirl PC Scanner installer
 
-The website serves downloads from this folder:
+Default download: **`FitGirlPcScanner-setup.exe`** — one Windows executable (PowerShell payload embedded).
 
-- **`FitGirlPcScanner-portable.zip`** — default (no Rust required). Run `npm run scanner:pack-portable` to rebuild.
-- **`FitGirlPcScanner-setup.exe`** — optional Tauri installer after `npm run scanner:build`.
+## Rebuild
 
-## Create / refresh the file
+```bash
+npm run scanner:build-exe
+```
 
-1. Build the scanner (Windows, Rust required):
+Requires Windows and .NET Framework `csc` (included on Windows). Commits the `.exe` to this folder and refreshes `api/lib/scannerZip.js` for `GET /api/pc-scan/pair`.
 
-   ```bash
-   cd scanner
-   npm install
-   npm run tauri build
-   ```
-
-2. Copy the NSIS `.exe` into this folder:
-
-   ```bash
-   cd ..
-   npm run scanner:copy-download
-   ```
-
-3. Commit `FitGirlPcScanner-setup.exe` if you want Vercel to host the direct download (file is ~5–15 MB).
-
-The scan wizard uses this path by default; override with `VITE_SCANNER_DOWNLOAD_URL` only for an external CDN or GitHub Release asset.
+Optional Tauri UI build: `npm run scanner:build` (Rust required).
