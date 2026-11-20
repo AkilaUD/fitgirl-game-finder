@@ -1,3 +1,4 @@
+import { PC_SCAN_NOT_CONFIGURED } from '../lib/pcScanConfigError.js';
 import { completePairing, pairingConfigured } from '../lib/pcScanStore.js';
 import { validateHardwareReport } from '../lib/hardwareReportValidate.js';
 import { clientIp, json, readJson, rateLimited } from '../lib/httpJson.js';
@@ -9,7 +10,7 @@ export default async function handler(req, res) {
     return;
   }
   if (!pairingConfigured()) {
-    json(res, 503, { error: 'PC scan pairing is not configured.' });
+    json(res, 503, PC_SCAN_NOT_CONFIGURED);
     return;
   }
   const ip = clientIp(req);

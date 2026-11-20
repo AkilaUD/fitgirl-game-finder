@@ -1,3 +1,4 @@
+import { PC_SCAN_NOT_CONFIGURED } from '../lib/pcScanConfigError.js';
 import { createPairingSession, pairingConfigured } from '../lib/pcScanStore.js';
 import { clientIp, json, originAllowed, rateLimited } from '../lib/httpJson.js';
 import { sendScannerZip } from '../lib/scannerZip.js';
@@ -17,7 +18,7 @@ export default async function handler(req, res) {
     return;
   }
   if (!pairingConfigured()) {
-    json(res, 503, { error: 'PC scan pairing is not configured on this deployment.' });
+    json(res, 503, PC_SCAN_NOT_CONFIGURED);
     return;
   }
   const ip = clientIp(req);

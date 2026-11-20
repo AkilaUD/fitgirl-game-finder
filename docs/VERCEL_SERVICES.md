@@ -6,13 +6,14 @@ Configured in root [`vercel.json`](../vercel.json).
 
 | Service | Root | Role on Vercel |
 |---------|------|----------------|
-| **app** | `.` | Public — Repack Finder (Vite) + `api/` serverless routes |
+| **api** | `.` | Public — `/api/*` serverless (`api/`, pairing + contact) |
+| **app** | `.` | Public — Repack Finder static Vite build |
 | **scanner** | `scanner` | Public at `/scanner` — Tauri dev UI only (no WMI in the browser) |
 | **src-tauri** | `scanner/src-tauri` | **Not built on Vercel** (`ignoreCommand: exit 0`) — desktop Rust/Tauri; use `npm run scanner:build-exe` locally |
 
 ## Public rewrites (most specific first)
 
-1. `/api/*` → **app** (pairing, contact, installer `GET` on `/api/pc-scan/pair`)
+1. `/api/*` → **api** (pairing, contact, installer `GET` on `/api/pc-scan/pair`; diagnostic `GET /api/pc-scan/health`)
 2. `/scanner`, `/scanner/*` → **scanner**
 3. `/downloads/*`, `/assets/*`, `/data/*` → **app**
 4. SPA fallback → `/index.html` on **app** (excludes `api/`, `downloads/`, `scanner`)
@@ -41,7 +42,7 @@ Use `process.env.API_URL` only in serverless code (not in Vite client bundles).
 
 ## Env vars (Vercel project — **app**)
 
-- `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
+- Pairing storage: `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` (or `KV_REST_API_*`), **or** `BLOB_READ_WRITE_TOKEN` — see [HARDWARE_SCAN.md](HARDWARE_SCAN.md)
 - `RESEND_API_KEY`
 - Optional: `ALLOWED_ORIGINS`, `PC_SCAN_PAIR_TTL_SEC`
 

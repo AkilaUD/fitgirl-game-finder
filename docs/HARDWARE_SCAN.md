@@ -21,14 +21,27 @@ The site is a static SPA plus serverless APIs. Browsers cannot read the host CPU
 
 ## Vercel setup
 
-1. Create an [Upstash Redis](https://upstash.com) database.
-2. In Vercel → Settings → Environment Variables, set:
+Pairing needs **shared storage** (serverless cannot use in-memory). Pick **one**:
+
+### Option A — Upstash Redis (recommended)
+
+1. Vercel → your project → **Storage** → **Create** → **Upstash** → **Redis** → connect to this project (auto-injects `UPSTASH_*` or `KV_REST_*` vars).
+2. Or create a DB at [Upstash](https://upstash.com) and paste into **Settings → Environment Variables**:
    - `UPSTASH_REDIS_REST_URL`
    - `UPSTASH_REDIS_REST_TOKEN`
-   - `PC_SCAN_PAIR_TTL_SEC` (optional, default 300)
-   - `ALLOWED_ORIGINS` (your production + preview URLs)
-   - (Optional) `VITE_SCANNER_DOWNLOAD_URL` — overrides the default bundled path `/downloads/FitGirlPcScanner-setup.exe`
-3. Redeploy.
+
+### Option B — Vercel Blob
+
+1. Vercel → **Storage** → **Blob** → connect to this project (`BLOB_READ_WRITE_TOKEN` is injected).
+2. Redeploy.
+
+3. **Redeploy** after storage is connected.
+
+Optional env (Settings → Environment Variables):
+
+- `PC_SCAN_PAIR_TTL_SEC` (default 300)
+- `ALLOWED_ORIGINS` (your production + preview URLs)
+- `VITE_SCANNER_DOWNLOAD_URL` — overrides the default `/downloads/FitGirlPcScanner-setup.exe`
 
 Local dev: put the same vars in `.env` and run `npm run dev` — Vite serves `/api/pc-scan/*` directly (no need for `serve.mjs` on port 5180 for pairing). Optional: run `node scripts/serve.mjs` for `/api/system` local hardware.
 

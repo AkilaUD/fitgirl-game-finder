@@ -1,6 +1,15 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "services": {
+    "api": {
+      "root": ".",
+      "installCommand": "npm install",
+      "functions": {
+        "api/**/*.js": {
+          "maxDuration": 15
+        }
+      }
+    },
     "app": {
       "root": ".",
       "framework": "vite",
@@ -33,7 +42,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": { "service": "app" }
+      "destination": { "service": "api" }
     },
     {
       "source": "/scanner",
