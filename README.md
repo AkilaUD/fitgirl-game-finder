@@ -28,8 +28,8 @@ private address (`localhost`, `127.x`, `192.168.x`, `10.x`, `172.16–31.x`, `*.
 such as Vercel there is no `/api/system` request and the scan is the browser estimate above. Behind a
 domain, add `?helper=1` to force the probe, or `?helper=0` to turn it off.
 
-The same is true of `POST /api/contact`: mail delivery needs the Node server, so a static deployment shows
-the form's "endpoint is not reachable" message.
+`POST /api/contact` is different: `api/contact.js` is a Vercel serverless function that delivers the same
+way from a hosted deployment, so the contact form keeps working there (see below).
 
 Both GPU and CPU fields accept free text with autocomplete from `data/suggestions.json` (every model
 named in the requirement data), and RAM has one-click 8/16/32/64 GB presets. Every value stays
@@ -37,9 +37,9 @@ editable, and nothing is sent anywhere.
 
 ## Contact form mail (Resend)
 
-The footer form posts to `POST /api/contact` on `scripts/serve.mjs`, which relays the message through
-[Resend](https://resend.com). The API key stays on the server — `js/app.js` only talks to the local
-endpoint.
+The footer form posts to `POST /api/contact`, handled by `scripts/serve.mjs` when you run the app
+locally and by `api/contact.js` on Vercel. Both relay the message through [Resend](https://resend.com).
+The API key stays on the server — `js/app.js` only talks to that endpoint.
 
 Settings come from `.env` (git-ignored; `.env.example` is the template):
 
@@ -54,6 +54,24 @@ address, so `CONTACT_TO` must match it until you verify a domain in Resend and p
 an address on that domain. Replies go back to whatever email the visitor typed (`reply_to`). The
 endpoint rejects cross-origin posts, caps requests at 5 per IP per 10 minutes, and reports a clear
 error when the key is missing.
+
+### Deploying to Vercel
+
+`api/contact.js` is a plain Vercel Node function; Vercel picks up anything in `api/` automatically, so
+there is no build step and nothing to install. Set the variables in **Project → Settings → Environment
+Variables** (for Production and Preview) and redeploy — `.env` is git-ignored, so the deployed function
+only sees the Vercel environment:
+
+| Variable | Required | Value |
+| --- | --- | --- |
+| `RESEND_API_KEY` | yes | your Resend key (`re_...`) |
+| `CONTACT_TO` | no | where messages go, defaults to `nexorasoftwarestudio@gmail.com` |
+| `CONTACT_FROM` | no | defaults to `Repack Finder <onboarding@resend.dev>` |
+
+Until a domain is verified in Resend, keep the default sender and make sure `CONTACT_TO` is the Resend
+account owner's own address. The 5-messages-per-10-minutes guard lives in each function instance, so on
+Vercel it is best-effort; Resend's own rate limits still apply. `/api/system` has no hosted counterpart
+on purpose — see above.
 
 ## Refresh the data
 

@@ -522,7 +522,7 @@ function wireContactForm() {
     } catch (err) {
       status.className = 'contact-status err';
       status.textContent = /^Failed to fetch/.test(err.message)
-        ? 'The mail endpoint is not reachable. Run the app with node scripts/serve.mjs, or email nexorasoftwarestudio@gmail.com directly.'
+        ? 'The mail endpoint is not reachable right now. Please email nexorasoftwarestudio@gmail.com directly.'
         : err.message;
     } finally {
       button.disabled = false;
