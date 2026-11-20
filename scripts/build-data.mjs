@@ -1,5 +1,5 @@
 // Merges scraped FitGirl repacks with Steam requirement data into data/games.json
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, copyFile } from 'node:fs/promises';
 
 const parseSize = (s) => {
   if (!s) return null;
@@ -126,3 +126,8 @@ console.log(`dateRange=${out[out.length - 1]?.date} .. ${out[0]?.date}`);
 const byYear = {};
 for (const g of out) { const y = (g.date || '').slice(0, 4); byYear[y] = (byYear[y] || 0) + 1; }
 console.log('perYear', JSON.stringify(byYear));
+
+await mkdir('public/data', { recursive: true });
+await copyFile('data/games.json', 'public/data/games.json');
+await copyFile('data/suggestions.json', 'public/data/suggestions.json');
+console.log('synced data/*.json → public/data/');

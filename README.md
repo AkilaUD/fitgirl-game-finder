@@ -1,16 +1,35 @@
 # Repack Finder
 
 Filters FitGirl repacks by download size and release date, and tells you which ones your PC meets the
-minimum or recommended system requirements for. Plain HTML/CSS/JS — no build step, no dependencies.
+minimum or recommended system requirements for. The UI is a **Vite + React + TypeScript** SPA with a
+game-launcher aesthetic (WebGL backdrop, Motion UI, HUD panels).
 
-## Run
+## Run (development)
 
 ```bash
+npm install
+node scripts/serve.mjs
+npm run dev
+```
+
+Open <http://127.0.0.1:5173>. Vite proxies `/api/system` and `/api/contact` to the helper on port **5180**,
+which also serves static files if you prefer the built bundle (see below).
+
+The app loads `public/data/games.json`. After refreshing the dataset, copy the JSON into `public/data/`:
+
+```powershell
+Copy-Item data\games.json, data\suggestions.json public\data\
+```
+
+## Production build
+
+```bash
+npm run build
 node scripts/serve.mjs
 ```
 
-Open <http://127.0.0.1:5180>. Use the server rather than opening `index.html` directly: the app fetches
-`data/games.json`, and the server also exposes `/api/system` for the hardware scan.
+When `dist/index.html` exists, `serve.mjs` serves the built SPA automatically (set `SERVE_DIST=0` to force
+the repo root). Deploy `dist/` to Vercel with `vercel.json`; `api/contact.js` stays at the project root.
 
 ### Scan my PC
 
@@ -21,12 +40,20 @@ Open <http://127.0.0.1:5180>. Use the server rather than opening `index.html` di
   is allowed to see: the GPU name via WebGPU/WebGL, the thread count and a RAM figure capped at 8 GB
   (shown as `8+`). It deliberately leaves the CPU model and free disk space blank — a browser cannot read
   them, and its storage quota is not disk space — so fill those two fields in for an accurate match.
+- **On a hosted copy**, open the **DxDiag** box under the hardware fields and paste the text of
+  `DxDiag.txt` (Win+R → `dxdiag` → *Save All Information…*). The report is parsed in the tab — nothing is
+  uploaded — and fills in the CPU model, total RAM, GPU and the free space on every drive, which is the
+  same hardware profile the local helper reports. Ctrl+Enter in the box does the same as the button.
 
 `/api/system` only exists in `scripts/serve.mjs`, and a remote server could not read your hardware anyway
 (it would just describe the server). So the page only asks the helper when it is opened on a local or
 private address (`localhost`, `127.x`, `192.168.x`, `10.x`, `172.16–31.x`, `*.local`); on a static host
 such as Vercel there is no `/api/system` request and the scan is the browser estimate above. Behind a
 domain, add `?helper=1` to force the probe, or `?helper=0` to turn it off.
+
+`python scripts/dxdiag.py` prints the same profile as JSON (`--keep` also keeps the raw report), for when
+you want the specs outside the local server. It converts dxdiag's binary MiB/GiB figures to the decimal
+GB that `serve.mjs` and the app use, so the two agree.
 
 `POST /api/contact` is different: `api/contact.js` is a Vercel serverless function that delivers the same
 way from a hosted deployment, so the contact form keeps working there (see below).
@@ -39,7 +66,7 @@ editable, and nothing is sent anywhere.
 
 The footer form posts to `POST /api/contact`, handled by `scripts/serve.mjs` when you run the app
 locally and by `api/contact.js` on Vercel. Both relay the message through [Resend](https://resend.com).
-The API key stays on the server — `js/app.js` only talks to that endpoint.
+The API key stays on the server — the React app only talks to that endpoint.
 
 Settings come from `.env` (git-ignored; `.env.example` is the template):
 
@@ -130,7 +157,7 @@ Repack titles are matched to Steam apps by `scripts/appid-map.mjs` using the rul
 ## How hardware matching works
 
 - **GPU**: the card named in the requirements is looked up in a relative performance index (RTX 4090 =
-  100) in `js/specs.js`; when a field lists alternatives ("GTX 1060 or RX 580"), the weakest one is the
+  100) in `src/lib/specs.ts`; when a field lists alternatives ("GTX 1060 or RX 580"), the weakest one is the
   bar. Laptop parts are scaled down 13%.
 - **CPU**: family + generation + model number → one scale for Intel and AMD (`i5-9400F` ≈ 21.5,
   `Ryzen 5 2600` ≈ 18.6). It is an estimate, not a benchmark.
@@ -142,11 +169,12 @@ Repack titles are matched to Steam apps by `scripts/appid-map.mjs` using the rul
 ## Files
 
 ```
-index.html, css/styles.css, js/app.js   UI
-js/specs.js                             spec detection + GPU/CPU scoring + matching
-data/games.json                         generated dataset (catalogue + specs + covers)
-data/suggestions.json                   autocomplete lists for the hardware fields
-scripts/                                scrape, match, fetch, image and build steps
+src/                    React UI, hooks, VFX (Three.js / Motion)
+src/lib/specs.ts        spec detection + GPU/CPU scoring + matching
+public/data/*.json      dataset served to the browser (copy from data/ after rebuild)
+data/*.json             output of build-data.mjs (pipeline)
+scripts/                scrape, match, fetch, image and build steps
+api/contact.js          Vercel serverless contact handler
 ```
 
 Catalogue data comes from <https://fitgirl-repacks.site/>; requirements from Steam store listings

@@ -10,6 +10,14 @@ import { cpus, totalmem, freemem, platform, release, arch } from 'node:os';
 const root = process.cwd();
 const port = Number(process.env.PORT) || 5180;
 
+// After `npm run build`, set SERVE_DIST=1 (default when dist/index.html exists) to serve the Vite bundle.
+const distDir = join(root, 'dist');
+let staticRoot = root;
+try {
+  const useDist = process.env.SERVE_DIST === '1' || (process.env.SERVE_DIST !== '0' && (await stat(join(distDir, 'index.html'))).isFile());
+  if (useDist) staticRoot = distDir;
+} catch {}
+
 // Mail settings live in .env (git-ignored) so the Resend key never reaches the browser.
 async function loadEnv() {
   try {
@@ -198,23 +206,26 @@ createServer(async (req, res) => {
   }
 
   try {
-    let file = join(root, normalize(url === '/' ? '/index.html' : url).replace(/^([/\\])+/, ''));
-    if (!file.startsWith(root)) { res.writeHead(403).end('forbidden'); return; }
+    let rel = normalize(url === '/' ? '/index.html' : url).replace(/^([/\\])+/, '');
+    let file = join(staticRoot, rel);
+    if (!file.startsWith(staticRoot)) { res.writeHead(403).end('forbidden'); return; }
     const s = await stat(file).catch(() => null);
     if (s && s.isDirectory()) file = join(file, 'index.html');
     const body = await readFile(file);
     res.writeHead(200, { 'Content-Type': TYPES[extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
     res.end(body);
   } catch {
-    const page = await readFile(join(root, '404.html')).catch(() => null);
-    if (page) {
-      res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
-      res.end(page);
-      return;
+    if (staticRoot === distDir) {
+      try {
+        const body = await readFile(join(distDir, 'index.html'));
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+        res.end(body);
+        return;
+      } catch {}
     }
     res.writeHead(404, { 'Content-Type': 'text/plain' }).end('not found');
   }
 }).listen(port, '127.0.0.1', () => {
-  console.log(`serving http://127.0.0.1:${port}`);
+  console.log(`serving http://127.0.0.1:${port}${staticRoot === distDir ? ' (dist)' : ''}`);
   console.log(process.env.RESEND_API_KEY ? `mail: contact form delivers to ${CONTACT_TO}` : 'mail: RESEND_API_KEY not set — contact form will report that email is unconfigured');
 });

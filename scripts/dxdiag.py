@@ -10,10 +10,12 @@ file, parses the fields Repack Finder needs, and prints them as JSON.
 
 Windows only. Nothing is uploaded; the temp report is deleted unless --keep is given.
 
-Note on numbers: dxdiag prints drive sizes in its own units and rounds, so they differ a
-little from `node scripts/serve.mjs` (which reads exact byte counts through the Windows API).
-For the app's storage check the helper remains the authoritative source; this script is for
-when you need the specs outside the local server.
+Note on numbers: dxdiag prints drive sizes as binary megabytes divided by 1000, so one of
+its "GB" is 1024 * 1024 * 1000 bytes rather than 1e9. The app and `node scripts/serve.mjs`
+report decimal GB from exact byte counts, so the values below are converted to that unit and
+agree with the helper (a 183.8 GB dxdiag drive is the same 192.7 GB the server reports).
+RAM is the installed figure dxdiag reads; the server reports usable memory, which is a little
+lower because Windows reserves some for the hardware.
 """
 
 import json
@@ -22,6 +24,17 @@ import re
 import subprocess
 import sys
 import tempfile
+
+# One dxdiag "GB" is 1024 * 1024 * 1000 bytes; the app uses decimal GB (see the note above).
+DXDIAG_GB = 1024**2 * 1000 / 1e9
+
+
+def gb_from_dxdiag(value):
+    return round(float(str(value).replace(",", "")) * DXDIAG_GB, 1)
+
+
+def gb_from_mib(value):
+    return round(float(str(value).replace(",", "")) * 1024**2 / 1e9, 1)
 
 
 def run_dxdiag(dest, timeout=180):
@@ -56,7 +69,7 @@ def first(pattern, text, group=1):
 
 
 def parse(text):
-    ram_mb = first(r"^\s*Memory:\s*(\d+)\s*MB RAM", text)
+    ram_mb = first(r"^\s*Memory:\s*([\d,]+)\s*MB RAM", text)
     gpus = []
     for block in re.findall(r"^\s*Card name:\s*(.+)$", text, re.IGNORECASE | re.MULTILINE):
         name = block.strip()
@@ -66,17 +79,17 @@ def parse(text):
     # Storage section, e.g. "Drive: C:" then "Free Space: 35.8 GB" and "Total Space: 81.3 GB".
     drives = []
     for match in re.finditer(
-        r"^\s*Drive:\s*([A-Z]:)[^\n]*\n\s*Free Space:\s*([\d.]+)\s*GB[^\n]*\n\s*Total Space:\s*([\d.]+)\s*GB",
+        r"^\s*Drive:\s*([A-Z]:)[^\n]*\n\s*Free Space:\s*([\d,.]+)\s*GB[^\n]*\n\s*Total Space:\s*([\d,.]+)\s*GB",
         text,
         re.MULTILINE,
     ):
         mount, free, total = match.groups()
-        drives.append({"mount": mount, "totalGb": round(float(total), 1), "freeGb": round(float(free), 1)})
+        drives.append({"mount": mount, "totalGb": gb_from_dxdiag(total), "freeGb": gb_from_dxdiag(free)})
 
     return {
         "cpu": first(r"^\s*Processor:\s*(.+)$", text),
         "cores": first(r"^\s*Processor:\s*.*?\((\d+)\s*CPUs?\)", text),
-        "ramGb": round(int(ram_mb) / 1024, 1) if ram_mb else None,
+        "ramGb": gb_from_mib(ram_mb) if ram_mb else None,
         "os": first(r"^\s*Operating System:\s*(.+)$", text),
         "gpus": gpus,
         "gpuMemory": first(r"^\s*Display Memory:\s*(.+)$", text),
