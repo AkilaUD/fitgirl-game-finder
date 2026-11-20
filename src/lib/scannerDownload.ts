@@ -1,6 +1,7 @@
-export const SCANNER_DOWNLOAD_FILENAME = 'FitGirlPcScanner-setup.exe';
+/** Portable zip (always in repo). Full NSIS installer uses FitGirlPcScanner-setup.exe when built. */
+export const SCANNER_DOWNLOAD_FILENAME = 'FitGirlPcScanner-portable.zip';
 
-/** Served from `public/downloads/` — included in Vite `dist/` on deploy. */
+export const BUNDLED_SCANNER_EXE = '/downloads/FitGirlPcScanner-setup.exe';
 export const BUNDLED_SCANNER_PATH = `/downloads/${SCANNER_DOWNLOAD_FILENAME}`;
 
 export interface ScannerDownloadLink {

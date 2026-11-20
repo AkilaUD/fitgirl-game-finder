@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "scanner:pack-portable": "node scripts/pack-scanner-portable.mjs",
     "scanner:copy-download": "node scripts/copy-scanner-download.mjs",
     "scanner:build": "npm --prefix scanner run tauri build && npm run scanner:copy-download"
   },

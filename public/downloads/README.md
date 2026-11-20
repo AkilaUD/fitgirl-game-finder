@@ -1,8 +1,9 @@
 # FitGirl PC Scanner installer
 
-The website serves the Windows installer from this folder:
+The website serves downloads from this folder:
 
-`FitGirlPcScanner-setup.exe` → **https://your-site/downloads/FitGirlPcScanner-setup.exe**
+- **`FitGirlPcScanner-portable.zip`** — default (no Rust required). Run `npm run scanner:pack-portable` to rebuild.
+- **`FitGirlPcScanner-setup.exe`** — optional Tauri installer after `npm run scanner:build`.
 
 ## Create / refresh the file
 

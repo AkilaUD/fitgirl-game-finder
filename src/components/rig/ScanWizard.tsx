@@ -82,7 +82,8 @@ export function ScanWizard({
         <section className="scan-step">
           <h4>Step 2 — Full hardware (Windows)</h4>
           <p className="muted scan-step-lede">
-            Download <strong>FitGirl PC Scanner</strong>, run it, enter the pairing code below, and confirm upload.
+            Download the portable scanner (zip), extract it, run <strong>Run-Scanner.cmd</strong>, enter the pairing
+            code below, and confirm upload.
           </p>
           <a
             className="btn primary"
@@ -92,12 +93,12 @@ export function ScanWizard({
               ? {}
               : { target: '_blank', rel: 'noopener noreferrer' })}
           >
-            Download FitGirl PC Scanner
+            Download portable scanner (.zip)
           </a>
           {scannerDownload.bundled ? (
             <p className="muted">
-              Direct download from this site. If the file is missing, build once with{' '}
-              <code>npm run scanner:build</code>, commit the file under <code>public/downloads/</code>, and redeploy.
+              No install needed — extract the zip and run Run-Scanner.cmd. A full .exe installer is optional after{' '}
+              <code>npm run scanner:build</code>.
             </p>
           ) : null}
         </section>
