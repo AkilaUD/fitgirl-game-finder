@@ -1,10 +1,15 @@
 import { createPairingSession, pairingConfigured } from '../lib/pcScanStore.js';
 import { clientIp, json, originAllowed, rateLimited } from '../lib/httpJson.js';
+import { sendScannerZip } from '../lib/scannerZip.js';
 
 export default async function handler(req, res) {
+  if (req.method === 'GET' || req.method === 'HEAD') {
+    sendScannerZip(req, res);
+    return;
+  }
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
-    json(res, 405, { error: 'Use POST.' });
+    res.setHeader('Allow', 'GET, HEAD, POST');
+    json(res, 405, { error: 'Use GET (scanner download) or POST (pairing).' });
     return;
   }
   if (!originAllowed(req)) {

@@ -3,8 +3,8 @@ import { join } from 'node:path';
 
 const root = process.cwd();
 const zipPath = join(root, 'api', '_data', 'FitGirlPcScanner-portable.zip');
-const tplPath = join(root, 'api', 'pc-scan', 'download.template.js');
-const outPath = join(root, 'api', 'pc-scan', 'download.js');
+const tplPath = join(root, 'api', 'lib', 'scannerZip.template.js');
+const outPath = join(root, 'api', 'lib', 'scannerZip.js');
 
 const [zip, tpl] = await Promise.all([readFile(zipPath), readFile(tplPath, 'utf8')]);
 const b64 = zip.toString('base64');
