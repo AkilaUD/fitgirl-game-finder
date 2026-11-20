@@ -89,28 +89,48 @@
   }
 }
 
-.glitch-title {
-  display: inline-block;
-  animation: glitchSkew 2.5s infinite;
+.glitch-title-link {
+  color: inherit;
+  text-decoration: none;
 }
 
-@keyframes glitchSkew {
-  0%,
-  92%,
-  100% {
-    transform: none;
-    text-shadow: none;
-  }
-  93% {
-    transform: skewX(-2deg);
-    text-shadow: 2px 0 var(--cyan), -2px 0 var(--pink);
-  }
-  94% {
-    transform: skewX(2deg);
-  }
-  95% {
-    transform: none;
-  }
+.glitch-title-link:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
+.glitch-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch-layer {
+  display: block;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+.glitch-pink {
+  position: absolute;
+  inset: 0;
+  color: var(--pink);
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.glitch-cyan {
+  position: absolute;
+  inset: 0;
+  color: var(--cyan);
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.glitch-main {
+  position: relative;
 }
 
 .intensity-toggle {
@@ -173,9 +193,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .glitch-title {
-    animation: none;
-  }
   .rig.scanning {
     animation: none;
   }

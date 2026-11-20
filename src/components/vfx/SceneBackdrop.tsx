@@ -1,62 +1,118 @@
 import { Suspense, useEffect, useMemo, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import { useVfx } from '../../context/VfxContext';
+import { THEME } from '../../lib/themeColors';
+import type { VfxIntensity } from '../../context/VfxContext';
 
-function ShaderGrid() {
+const AURORA_FRAG = /* glsl */ `
+  uniform float uTime;
+  uniform float uIntensity;
+  uniform vec2 uMouse;
+  uniform vec3 uPink;
+  uniform vec3 uCyan;
+  uniform vec3 uMagenta;
+  varying vec2 vUv;
+
+  float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+  }
+
+  float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    float a = hash(i);
+    float b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0));
+    float d = hash(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+  }
+
+  float fbm(vec2 p) {
+    float v = 0.0;
+    float amp = 0.55;
+    float freq = 1.0;
+    for (int i = 0; i < 4; i++) {
+      v += amp * noise(p * freq);
+      freq *= 2.05;
+      amp *= 0.48;
+    }
+    return v;
+  }
+
+  void main() {
+    vec2 uv = vUv;
+    vec2 drift = vec2(uTime * 0.018, uTime * 0.012);
+    vec2 p = uv * vec2(2.8, 1.6) + drift + uMouse * 0.08;
+
+    float n1 = fbm(p);
+    float n2 = fbm(p + vec2(1.7, -0.4) + uTime * 0.02);
+    float blob = smoothstep(0.25, 0.92, n1 * 0.55 + n2 * 0.45);
+    blob = pow(blob, 1.4);
+
+    float horizon = smoothstep(0.0, 1.0, uv.y);
+    vec3 col = mix(uPink, uCyan, uv.x + 0.15 * sin(uTime * 0.3 + uv.y * 4.0));
+    col = mix(col, uMagenta, n2 * 0.35);
+    vec3 base = vec3(0.03, 0.015, 0.04);
+    float strength = blob * (0.35 + uIntensity * 0.35) * (0.4 + 0.6 * (1.0 - horizon));
+    vec3 aurora = base + col * strength;
+
+    gl_FragColor = vec4(aurora, strength * 0.65 + 0.08);
+  }
+`;
+
+const AURORA_VERT = /* glsl */ `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+function AuroraPlane({ intensity }: { intensity: VfxIntensity }) {
   const mat = useMemo(() => {
     return new THREE.ShaderMaterial({
       transparent: true,
+      depthWrite: false,
       uniforms: {
         uTime: { value: 0 },
-        uPink: { value: new THREE.Color('#f72585') },
-        uCyan: { value: new THREE.Color('#00ffea') },
+        uIntensity: { value: intensity === 'ultra' ? 1 : 0.45 },
+        uMouse: { value: new THREE.Vector2(0, 0) },
+        uPink: { value: new THREE.Color(THEME.pink) },
+        uCyan: { value: new THREE.Color(THEME.cyan) },
+        uMagenta: { value: new THREE.Color(THEME.magenta) },
       },
-      vertexShader: `
-        varying vec2 vUv;
-        void main() {
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform float uTime;
-        uniform vec3 uPink;
-        uniform vec3 uCyan;
-        varying vec2 vUv;
-        float hash(vec2 p) {
-          return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
-        }
-        void main() {
-          vec2 uv = vUv;
-          float grid = step(0.98, max(fract(uv.x * 40.0), fract(uv.y * 24.0)));
-          float scan = sin((uv.y + uTime * 0.04) * 12.0) * 0.5 + 0.5;
-          vec3 base = vec3(0.02, 0.01, 0.04);
-          vec3 accent = mix(uPink, uCyan, uv.x) * (grid * 0.35 + scan * 0.08);
-          gl_FragColor = vec4(base + accent, 0.55);
-        }
-      `,
+      vertexShader: AURORA_VERT,
+      fragmentShader: AURORA_FRAG,
     });
-  }, []);
+  }, [intensity]);
+
+  useEffect(() => {
+    mat.uniforms.uIntensity.value = intensity === 'ultra' ? 1 : 0.45;
+  }, [intensity, mat]);
+
+  const { pointer } = useThree();
 
   useFrame((_, delta) => {
     mat.uniforms.uTime.value += delta;
+    mat.uniforms.uMouse.value.set(pointer.x, pointer.y);
   });
 
   return (
-    <mesh position={[0, 0, -2]} scale={[12, 8, 1]} material={mat}>
+    <mesh position={[0, 0, -2]} scale={[14, 9, 1]} material={mat}>
       <planeGeometry args={[1, 1]} />
     </mesh>
   );
 }
 
-function SceneContent({ starCount }: { starCount: number }) {
+function SceneContent({ starCount, intensity }: { starCount: number; intensity: VfxIntensity }) {
   return (
     <>
-      <color attach="background" args={['#070509']} />
+      <color attach="background" args={[THEME.black]} />
       <Stars radius={80} depth={40} count={starCount} factor={3} fade speed={0.6} />
-      <ShaderGrid />
+      <AuroraPlane intensity={intensity} />
     </>
   );
 }
@@ -78,8 +134,7 @@ export function SceneBackdrop() {
         className="vfx-backdrop"
         aria-hidden
         style={{
-          background:
-            'radial-gradient(700px 380px at 80% -10%, rgba(247,37,133,.13), transparent 70%), radial-gradient(620px 360px at 8% 104%, rgba(0,255,234,.07), transparent 72%), #0B0810',
+          background: `radial-gradient(700px 380px at 80% -10%, rgba(247,37,133,.13), transparent 70%), radial-gradient(620px 360px at 8% 104%, rgba(0,255,234,.07), transparent 72%), ${THEME.bg}`,
         }}
       />
     );
@@ -94,7 +149,7 @@ export function SceneBackdrop() {
         gl={{ antialias: false, alpha: true }}
       >
         <Suspense fallback={null}>
-          <SceneContent starCount={starCount} />
+          <SceneContent starCount={starCount} intensity={intensity} />
         </Suspense>
       </Canvas>
     </div>

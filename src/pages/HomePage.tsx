@@ -10,6 +10,7 @@ import { GameGrid } from '../components/games/GameGrid';
 import { RecoStrip } from '../components/games/RecoStrip';
 import { GameModal } from '../components/games/GameModal';
 import { Footer } from '../components/layout/Footer';
+import { useHomeEntrance } from '../hooks/useHomeEntrance';
 
 function defaultFilter(facets: { yearMin: number; yearMax: number; maxSize: number }): FilterState {
   return {
@@ -74,9 +75,11 @@ export function HomePage() {
   };
 
   const onScan = () => rig.runScan();
+  const entranceReady = !loading && !error && filter != null && facets != null;
+  const entranceRef = useHomeEntrance(entranceReady);
 
   return (
-    <>
+    <div ref={entranceRef} className="home-entrance">
       <HeaderBar
         query={filter?.q ?? ''}
         onQuery={(q) => patchFilter({ q, limit: 60 })}
@@ -151,7 +154,7 @@ export function HomePage() {
       ) : null}
       <Footer />
       <GameModal game={selected} pc={rig.pcProfile} hasRig={rig.hasRig} onClose={() => setSelectedId(null)} />
-    </>
+    </div>
   );
 }
 

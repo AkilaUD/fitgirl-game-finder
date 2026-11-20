@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
+import { GlitchTitle } from '../vfx/GlitchTitle';
 import { useVfx } from '../../context/VfxContext';
 
 interface HeaderBarProps {
@@ -18,9 +19,7 @@ export function HeaderBar({ query, onQuery, onScan, scanning }: HeaderBarProps) 
         <Link className="mark" to="/" aria-label="Repack Finder home" />
         <div>
           <h1>
-            <Link to="/" className={!reducedMotion && intensity === 'ultra' ? 'glitch-title' : undefined}>
-              Repack Finder
-            </Link>
+            <GlitchTitle>Repack Finder</GlitchTitle>
           </h1>
           <p>FitGirl repacks, filtered by size, date and what your PC can actually run.</p>
         </div>
