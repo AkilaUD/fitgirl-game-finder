@@ -1,10 +1,12 @@
 import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const FILENAME = 'FitGirlPcScanner-portable.zip';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function zipPath() {
-  return join(process.cwd(), 'public', 'downloads', FILENAME);
+  return join(__dirname, '_data', FILENAME);
 }
 
 export default async function handler(req, res) {
