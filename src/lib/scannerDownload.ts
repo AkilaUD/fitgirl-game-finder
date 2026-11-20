@@ -2,7 +2,9 @@
 export const SCANNER_DOWNLOAD_FILENAME = 'FitGirlPcScanner-portable.zip';
 
 export const BUNDLED_SCANNER_EXE = '/downloads/FitGirlPcScanner-setup.exe';
-export const BUNDLED_SCANNER_PATH = `/downloads/${SCANNER_DOWNLOAD_FILENAME}`;
+/** Static path (Vite `public/`); Vercel may also serve via `/api/scanner-download`. */
+export const BUNDLED_SCANNER_STATIC = `/downloads/${SCANNER_DOWNLOAD_FILENAME}`;
+export const BUNDLED_SCANNER_API = '/api/scanner-download';
 
 export interface ScannerDownloadLink {
   href: string;
@@ -21,7 +23,7 @@ export function resolveScannerDownload(): ScannerDownloadLink {
     return { href: override, bundled, directDownload };
   }
   return {
-    href: BUNDLED_SCANNER_PATH,
+    href: BUNDLED_SCANNER_API,
     bundled: true,
     directDownload: true,
   };

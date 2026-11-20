@@ -1,23 +1,31 @@
-import { execFile } from 'node:child_process';
-import { join } from 'node:path';
-import { promisify } from 'node:util';
+import { createWriteStream, existsSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
+import { ZipArchive } from 'archiver';
 
-const execFileAsync = promisify(execFile);
 const root = process.cwd();
 const srcDir = join(root, 'tools', 'pc-scanner-portable');
 const outDir = join(root, 'public', 'downloads');
 const zipPath = join(outDir, 'FitGirlPcScanner-portable.zip');
 
-const ps = `
-$src = ${JSON.stringify(srcDir)}
-$dest = ${JSON.stringify(zipPath)}
-if (Test-Path $dest) { Remove-Item -Force $dest }
-New-Item -ItemType Directory -Force -Path (Split-Path $dest) | Out-Null
-Compress-Archive -Path (Join-Path $src '*') -DestinationPath $dest -Force
-Write-Output $dest
-`;
-
 await mkdir(outDir, { recursive: true });
-await execFileAsync('powershell', ['-NoProfile', '-NonInteractive', '-Command', ps], { windowsHide: true });
+
+if (!existsSync(join(srcDir, 'Scan.ps1'))) {
+  console.error('Missing tools/pc-scanner-portable — cannot pack.');
+  process.exit(1);
+}
+
+await new Promise((resolve, reject) => {
+  const out = createWriteStream(zipPath);
+  const archive = new ZipArchive({ zlib: { level: 9 } });
+
+  out.on('close', resolve);
+  archive.on('error', reject);
+  out.on('error', reject);
+
+  archive.pipe(out);
+  archive.directory(srcDir, false);
+  archive.finalize();
+});
+
 console.log(`Created ${zipPath}`);
