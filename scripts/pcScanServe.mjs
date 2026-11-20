@@ -2,6 +2,7 @@ import pairHandler from '../api/pc-scan/pair.js';
 import statusHandler from '../api/pc-scan/status.js';
 import completeHandler from '../api/pc-scan/complete.js';
 import consumeHandler from '../api/pc-scan/consume.js';
+import downloadHandler from '../api/pc-scan/download.js';
 
 /** Dispatch /api/pc-scan/* to Vercel-style handlers. Returns true if handled. */
 export async function dispatchPcScan(req, res, pathname) {
@@ -10,6 +11,7 @@ export async function dispatchPcScan(req, res, pathname) {
   '/api/pc-scan/status': statusHandler,
   '/api/pc-scan/complete': completeHandler,
   '/api/pc-scan/consume': consumeHandler,
+  '/api/pc-scan/download': downloadHandler,
   };
   const handler = routes[pathname];
   if (!handler) return false;
