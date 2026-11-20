@@ -22,10 +22,14 @@ Open <http://127.0.0.1:5180>. Use the server rather than opening `index.html` di
   (shown as `8+`). It deliberately leaves the CPU model and free disk space blank — a browser cannot read
   them, and its storage quota is not disk space — so fill those two fields in for an accurate match.
 
-`/api/system` only exists in `scripts/serve.mjs`, so on a static host every scan is the browser estimate
-above; the page probes the endpoint and falls back on its own. The same is true of `POST /api/contact`:
-mail delivery needs the Node server, so a static deployment shows the form's "endpoint is not reachable"
-message.
+`/api/system` only exists in `scripts/serve.mjs`, and a remote server could not read your hardware anyway
+(it would just describe the server). So the page only asks the helper when it is opened on a local or
+private address (`localhost`, `127.x`, `192.168.x`, `10.x`, `172.16–31.x`, `*.local`); on a static host
+such as Vercel there is no `/api/system` request and the scan is the browser estimate above. Behind a
+domain, add `?helper=1` to force the probe, or `?helper=0` to turn it off.
+
+The same is true of `POST /api/contact`: mail delivery needs the Node server, so a static deployment shows
+the form's "endpoint is not reachable" message.
 
 Both GPU and CPU fields accept free text with autocomplete from `data/suggestions.json` (every model
 named in the requirement data), and RAM has one-click 8/16/32/64 GB presets. Every value stays

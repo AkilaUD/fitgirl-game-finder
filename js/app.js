@@ -133,7 +133,11 @@ function paintRig() {
   }
   if (d.screen) bits.push(`<span>Display <b>${d.screen}</b>${d.dpr > 1 ? ` @${d.dpr}x` : ''}</span>`);
   if (d.platform) bits.push(`<span>Platform <b>${d.platform}</b></span>`);
-  if (d.source === 'browser') bits.push('<span>Browser estimate — this browser cannot read your CPU model or free disk space; type them in below, or run the site locally with <code>node scripts/serve.mjs</code> for exact detection.</span>');
+  if (d.source === 'browser') {
+    bits.push(helperExpected()
+      ? '<span>Browser estimate — the local helper is not running. Start it with <code>node scripts/serve.mjs</code> for the exact CPU model, total RAM and free disk space.</span>'
+      : '<span>Browser estimate — a hosted page cannot read your CPU model or free disk space; type them in below, or run the site locally with <code>node scripts/serve.mjs</code> for exact detection.</span>');
+  }
   $('#rigDetected').innerHTML = bits.join('');
 
   $('#clearBtn').hidden = !hasRig();
@@ -416,15 +420,37 @@ function flashRig() {
   $('#rig').animate([{ borderColor: 'rgba(255,107,122,.8)' }, { borderColor: '#211829' }], { duration: 1200 });
 }
 
+// /api/system is served only by scripts/serve.mjs. A static host such as Vercel has no such
+// route — and a remote server could not read this machine's hardware anyway — so ask for it
+// only when the page is running on a local/private address. ?helper=1 forces the probe on
+// another host (e.g. serve.mjs behind a domain), ?helper=0 turns it off.
+const PRIVATE_HOST =
+  /^(localhost|(?:10|127)\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}|\[::1\]|::1|[a-z0-9-]+\.local)$/i;
+
+function helperExpected() {
+  const forced = new URLSearchParams(location.search).get('helper');
+  if (forced === '1') return true;
+  if (forced === '0') return false;
+  return PRIVATE_HOST.test(location.hostname || '');
+}
+
+async function readSystemInfo() {
+  if (!helperExpected()) return null;
+  try {
+    const res = await fetch('/api/system', { cache: 'no-store', headers: { Accept: 'application/json' } });
+    return res.ok ? await res.json() : null;
+  } catch {
+    return null;
+  }
+}
+
 async function runScan() {
   const btn = $('#scanBtn');
   btn.disabled = true;
   btn.textContent = 'Scanning…';
   try {
     // The local helper server can read what a browser cannot: CPU model, real RAM, every drive.
-    const local = await fetch('/api/system', { cache: 'no-store' })
-      .then((r) => (r.ok ? r.json() : null))
-      .catch(() => null);
+    const local = await readSystemInfo();
     const browser = await scanPc();
     detected = { ...browser, ...(local || {}) };
 

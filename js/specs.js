@@ -168,7 +168,10 @@ export async function detectGpu() {
   // WebGPU exposes a readable adapter description in Chromium browsers.
   try {
     if (navigator.gpu) {
-      const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
+      // Chrome ignores powerPreference on Windows and warns about it in the console, so only
+      // ask for the discrete GPU where the hint is actually honoured.
+      const win = /win/i.test(navigator.userAgentData?.platform || navigator.platform || '');
+      const adapter = await navigator.gpu.requestAdapter(win ? undefined : { powerPreference: 'high-performance' });
       const info = adapter && (adapter.info || (adapter.requestAdapterInfo ? await adapter.requestAdapterInfo() : null));
       if (info && (info.description || info.device)) {
         const raw = info.description || info.device;
