@@ -3,7 +3,11 @@
   "outputDirectory": "dist",
   "headers": [
     {
-      "source": "/downloads/(.*\\.(exe|zip))",
+      "source": "/downloads/FitGirlPcScanner-setup.exe",
+      "headers": [{ "key": "Content-Disposition", "value": "attachment" }]
+    },
+    {
+      "source": "/downloads/FitGirlPcScanner-portable.zip",
       "headers": [{ "key": "Content-Disposition", "value": "attachment" }]
     }
   ],
