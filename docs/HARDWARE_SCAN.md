@@ -30,7 +30,7 @@ The site is a static SPA plus serverless APIs. Browsers cannot read the host CPU
    - `VITE_SCANNER_DOWNLOAD_URL` at **build** time (GitHub Release asset)
 3. Redeploy.
 
-Local dev: put the same vars in `.env` and run `node scripts/serve.mjs` plus `npm run dev` (Vite proxies `/api/pc-scan`).
+Local dev: put the same vars in `.env` and run `npm run dev` — Vite serves `/api/pc-scan/*` directly (no need for `serve.mjs` on port 5180 for pairing). Optional: run `node scripts/serve.mjs` for `/api/system` local hardware.
 
 ## Windows scanner (Tauri)
 

@@ -1,0 +1,1 @@
+export { default } from './pc-scan/consume.js';

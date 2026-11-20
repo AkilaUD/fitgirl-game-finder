@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { HardwareReport } from '../lib/hardwareReport';
+import { pcScanHttpError } from '../lib/pcScanApiErrors';
 
 const SESSION_KEY = 'rf.pcscan.sessionId';
 
@@ -41,7 +42,7 @@ export function usePcScanPairing(onReport: (report: HardwareReport) => void) {
           body: JSON.stringify({ sessionId }),
         });
         const body = await r.json().catch(() => ({}));
-        if (!r.ok) throw new Error((body as { error?: string }).error || `HTTP ${r.status}`);
+        if (!r.ok) throw pcScanHttpError(r.status, (body as { error?: string }).error);
         const report = (body as { report: HardwareReport }).report;
         onReport(report);
         sessionStorage.removeItem(SESSION_KEY);
@@ -61,7 +62,7 @@ export function usePcScanPairing(onReport: (report: HardwareReport) => void) {
     try {
       const r = await fetch('/api/pc-scan/pair', { method: 'POST' });
       const body = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error((body as { error?: string }).error || `HTTP ${r.status}`);
+      if (!r.ok) throw pcScanHttpError(r.status, (body as { error?: string }).error);
       const next: PairingSession = {
         sessionId: body.sessionId,
         pairingCode: body.pairingCode,
