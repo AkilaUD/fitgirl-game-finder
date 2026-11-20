@@ -57,9 +57,22 @@ npm run scanner:build
 
 That runs Tauri and copies the installer to [`public/downloads/`](../public/downloads/). Commit `FitGirlPcScanner-setup.exe` so Vercel ships it as a **direct download** from your domain (no GitHub Releases required).
 
-### Code signing
+### Windows scanner `.exe` (Repack Finder theme)
 
-Windows SmartScreen trusts signed installers. For production, sign with an Authenticode certificate (OV/EV). Use `signtool sign /tr http://timestamp.digicert.com ...` on the built `.exe`/`.msi`. Unsigned builds still work but show an extra warning.
+Built with `npm run scanner:build-exe` on Windows (`scripts/scanner-win/` — WinForms UI matching the site: dark panel, neon pink/cyan). The download is a single portable app (no installer); WMI collection runs in-process.
+
+### SmartScreen (“Windows protected your PC”)
+
+Unsigned community builds are flagged until **Authenticode**-signed. Users should click **More info** → **Run anyway**. The in-app and website wizard explain this; signing removes the prompt over time.
+
+To sign after build, set env vars and rebuild on a machine with the Windows SDK `signtool`:
+
+- `SCANNER_CODESIGN_PFX` — path to `.pfx`
+- `SCANNER_CODESIGN_PASSWORD` — optional
+
+Or: `signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f cert.pfx public/downloads/FitGirlPcScanner-setup.exe`
+
+OV/EV code-signing certificates are the long-term fix for SmartScreen reputation.
 
 ## Security
 

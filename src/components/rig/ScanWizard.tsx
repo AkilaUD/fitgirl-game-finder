@@ -94,9 +94,13 @@ export function ScanWizard({
           >
             Download FitGirl PC Scanner (.exe)
           </a>
+          <p className="muted scan-smartscreen-note">
+            <strong>SmartScreen:</strong> Windows may say &quot;Unknown publisher&quot; until the build is Authenticode-signed.
+            Choose <strong>More info</strong> → <strong>Run anyway</strong>. The scanner does not install itself — it only
+            reads hardware and uploads when you confirm.
+          </p>
           <p className="muted">
-            Single Windows installer — run it, enter your pairing code, confirm upload. Rebuild with{' '}
-            <code>npm run scanner:build-exe</code> on Windows if you change the scanner.
+            Rebuild the <code>.exe</code> on Windows with <code>npm run scanner:build-exe</code> after code changes.
           </p>
         </section>
 
