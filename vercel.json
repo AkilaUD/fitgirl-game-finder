@@ -1,11 +1,11 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/api/pc-scan/pair", "destination": "/api/pc-scan-pair" },
-    { "source": "/api/pc-scan/status", "destination": "/api/pc-scan-status" },
-    { "source": "/api/pc-scan/complete", "destination": "/api/pc-scan-complete" },
-    { "source": "/api/pc-scan/consume", "destination": "/api/pc-scan-consume" },
-    { "source": "/((?!api/|downloads/).*)", "destination": "/index.html" }
-  ]
+  "headers": [
+    {
+      "source": "/downloads/(.*\\.exe)",
+      "headers": [{ "key": "Content-Disposition", "value": "attachment" }]
+    }
+  ],
+  "rewrites": [{ "source": "/((?!api/|downloads/).*)", "destination": "/index.html" }]
 }

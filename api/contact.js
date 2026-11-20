@@ -38,14 +38,17 @@ function rateLimited(ip) {
 async function readJson(req) {
   if (req.body && typeof req.body === 'object') return req.body;
   if (typeof req.body === 'string' && req.body.length) return JSON.parse(req.body);
-  let size = 0;
-  const chunks = [];
-  for await (const chunk of req) {
-    size += chunk.length;
-    if (size > MAX_BODY) throw new Error('too large');
-    chunks.push(chunk);
+  if (req && typeof req[Symbol.asyncIterator] === 'function') {
+    let size = 0;
+    const chunks = [];
+    for await (const chunk of req) {
+      size += chunk.length;
+      if (size > MAX_BODY) throw new Error('too large');
+      chunks.push(chunk);
+    }
+    return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
   }
-  return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
+  return {};
 }
 
 async function sendContactMail({ name, email, message }) {
@@ -72,7 +75,7 @@ async function sendContactMail({ name, email, message }) {
   return { id: data.id };
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     json(res, 405, { error: 'Use POST.' });

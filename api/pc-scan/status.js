@@ -16,8 +16,21 @@ export default async function handler(req, res) {
     return;
   }
 
-  const url = new URL(req.url, `http://${req.headers.host}`);
-  const sessionId = url.searchParams.get('sessionId')?.trim();
+  let sessionId =
+    typeof req.query?.sessionId === 'string'
+      ? req.query.sessionId
+      : Array.isArray(req.query?.sessionId)
+        ? req.query.sessionId[0]
+        : null;
+  if (!sessionId && req.url) {
+    try {
+      const base = req.headers.host ? `http://${req.headers.host}` : 'http://localhost';
+      sessionId = new URL(req.url, base).searchParams.get('sessionId');
+    } catch {
+      /* ignore */
+    }
+  }
+  sessionId = sessionId?.trim();
   if (!sessionId) {
     json(res, 400, { error: 'sessionId query parameter is required.' });
     return;

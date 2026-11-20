@@ -8,14 +8,17 @@ export function json(res, code, body) {
 export async function readJson(req, limit = 256 * 1024) {
   if (req.body && typeof req.body === 'object') return req.body;
   if (typeof req.body === 'string' && req.body.length) return JSON.parse(req.body);
-  let size = 0;
-  const chunks = [];
-  for await (const chunk of req) {
-    size += chunk.length;
-    if (size > limit) throw new Error('too large');
-    chunks.push(chunk);
+  if (req && typeof req[Symbol.asyncIterator] === 'function') {
+    let size = 0;
+    const chunks = [];
+    for await (const chunk of req) {
+      size += chunk.length;
+      if (size > limit) throw new Error('too large');
+      chunks.push(chunk);
+    }
+    return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
   }
-  return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
+  return {};
 }
 
 const recentHits = new Map();
