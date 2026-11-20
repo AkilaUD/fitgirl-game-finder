@@ -6,6 +6,6 @@
     { "source": "/api/pc-scan/status", "destination": "/api/pc-scan-status" },
     { "source": "/api/pc-scan/complete", "destination": "/api/pc-scan-complete" },
     { "source": "/api/pc-scan/consume", "destination": "/api/pc-scan-consume" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/((?!api/|downloads/).*)", "destination": "/index.html" }
   ]
 }

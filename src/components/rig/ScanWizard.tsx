@@ -1,10 +1,9 @@
 import type { DetectedInfo } from '../../lib/gameTypes';
 import type { HardwareReportVolume } from '../../lib/hardwareReport';
 import type { PairingPhase, PairingSession } from '../../hooks/usePcScanPairing';
+import { resolveScannerDownload, SCANNER_DOWNLOAD_FILENAME } from '../../lib/scannerDownload';
 
-const DEFAULT_SCANNER_RELEASES = 'https://github.com/AkilaUD/fitgirl-game-finder/releases/latest';
-const scannerUrl = import.meta.env.VITE_SCANNER_DOWNLOAD_URL || DEFAULT_SCANNER_RELEASES;
-const scannerIsReleasesPage = !import.meta.env.VITE_SCANNER_DOWNLOAD_URL;
+const scannerDownload = resolveScannerDownload();
 
 interface ScanWizardProps {
   open: boolean;
@@ -85,11 +84,21 @@ export function ScanWizard({
           <p className="muted scan-step-lede">
             Download <strong>FitGirl PC Scanner</strong>, run it, enter the pairing code below, and confirm upload.
           </p>
-          <a className="btn primary" href={scannerUrl} target="_blank" rel="noopener noreferrer">
-            {scannerIsReleasesPage ? 'FitGirl PC Scanner (GitHub Releases)' : 'Download FitGirl PC Scanner'}
+          <a
+            className="btn primary"
+            href={scannerDownload.href}
+            download={scannerDownload.directDownload ? SCANNER_DOWNLOAD_FILENAME : undefined}
+            {...(scannerDownload.directDownload
+              ? {}
+              : { target: '_blank', rel: 'noopener noreferrer' })}
+          >
+            Download FitGirl PC Scanner
           </a>
-          {scannerIsReleasesPage ? (
-            <p className="muted">Set VITE_SCANNER_DOWNLOAD_URL for a direct installer link after your first release.</p>
+          {scannerDownload.bundled ? (
+            <p className="muted">
+              Direct download from this site. If the file is missing, build once with{' '}
+              <code>npm run scanner:build</code>, commit the file under <code>public/downloads/</code>, and redeploy.
+            </p>
           ) : null}
         </section>
 

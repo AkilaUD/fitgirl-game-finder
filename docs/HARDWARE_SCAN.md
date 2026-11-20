@@ -27,7 +27,7 @@ The site is a static SPA plus serverless APIs. Browsers cannot read the host CPU
    - `UPSTASH_REDIS_REST_TOKEN`
    - `PC_SCAN_PAIR_TTL_SEC` (optional, default 300)
    - `ALLOWED_ORIGINS` (your production + preview URLs)
-   - `VITE_SCANNER_DOWNLOAD_URL` at **build** time (GitHub Release asset)
+   - (Optional) `VITE_SCANNER_DOWNLOAD_URL` — overrides the default bundled path `/downloads/FitGirlPcScanner-setup.exe`
 3. Redeploy.
 
 Local dev: put the same vars in `.env` and run `npm run dev` — Vite serves `/api/pc-scan/*` directly (no need for `serve.mjs` on port 5180 for pairing). Optional: run `node scripts/serve.mjs` for `/api/system` local hardware.
@@ -36,7 +36,13 @@ Local dev: put the same vars in `.env` and run `npm run dev` — Vite serves `/a
 
 See [`scanner/README.md`](../scanner/README.md).
 
-Build on Windows 10/11 with Rust and Node 20+. Publish the installer to **GitHub Releases**; set `VITE_SCANNER_DOWNLOAD_URL` to that asset URL.
+Build on Windows 10/11 with Rust and Node 20+. From the repo root:
+
+```bash
+npm run scanner:build
+```
+
+That runs Tauri and copies the installer to [`public/downloads/`](../public/downloads/). Commit `FitGirlPcScanner-setup.exe` so Vercel ships it as a **direct download** from your domain (no GitHub Releases required).
 
 ### Code signing
 

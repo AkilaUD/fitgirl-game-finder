@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "scanner:copy-download": "node scripts/copy-scanner-download.mjs",
+    "scanner:build": "npm --prefix scanner run tauri build && npm run scanner:copy-download"
   },
   "dependencies": {
     "@gsap/react": "^2.1.0",
