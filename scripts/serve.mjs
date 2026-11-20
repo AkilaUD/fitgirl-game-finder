@@ -6,6 +6,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
 import { execFile } from 'node:child_process';
 import { cpus, totalmem, freemem, platform, release, arch } from 'node:os';
+import { dispatchPcScan } from './pcScanServe.mjs';
 
 const root = process.cwd();
 const port = Number(process.env.PORT) || 5180;
@@ -192,6 +193,12 @@ createServer(async (req, res) => {
       json(e.message === 'too large' ? 413 : 400, { error: e.message === 'too large' ? 'Message is too long.' : 'Could not read the request.' });
     }
     return;
+  }
+
+  if (url.startsWith('/api/pc-scan/')) {
+  if (await dispatchPcScan(req, res, url)) return;
+  res.writeHead(404, { 'Content-Type': 'application/json' }).end(JSON.stringify({ error: 'Not found' }));
+  return;
   }
 
   if (url === '/api/system') {

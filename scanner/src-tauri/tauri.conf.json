@@ -1,0 +1,24 @@
+{
+  "productName": "FitGirl PC Scanner",
+  "version": "0.1.0",
+  "identifier": "com.fitgirl.pcscanner",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "FitGirl PC Scanner",
+        "width": 560,
+        "height": 640,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  }
+}

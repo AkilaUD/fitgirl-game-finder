@@ -45,8 +45,18 @@ export interface FilterState {
   limit: number;
 }
 
+export type FieldSource = 'desktop' | 'browser' | 'manual' | 'unavailable';
+
+export interface RigFieldProvenance {
+  gpu?: FieldSource;
+  cpu?: FieldSource;
+  ram?: FieldSource;
+  freeGb?: FieldSource;
+  installMount?: FieldSource;
+}
+
 export interface DetectedInfo {
-  source?: 'local-server' | 'browser' | 'dxdiag';
+  source?: 'local-server' | 'browser' | 'dxdiag' | 'desktop';
   cpu?: string | null;
   cores?: number | null;
   ramGb?: number | null;
@@ -58,6 +68,16 @@ export interface DetectedInfo {
   dpr?: number;
   platform?: string;
   freeGb?: number | null;
+  browserName?: string | null;
+  browserVersion?: string | null;
+  quotaEstimateGb?: number | null;
+  connectionType?: string | null;
+  provenance?: RigFieldProvenance;
+  reportSummary?: {
+    os?: string | null;
+    physicalCores?: number | null;
+    threads?: number | null;
+  };
 }
 
 export interface RigState {
@@ -65,6 +85,8 @@ export interface RigState {
   cpu: string;
   ram: number | null;
   freeGb: number | null;
+  /** Drive letter used for storage compatibility (e.g. C:). */
+  installMount?: string | null;
 }
 
 export interface Suggestions {

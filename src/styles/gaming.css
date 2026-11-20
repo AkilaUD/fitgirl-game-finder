@@ -197,3 +197,89 @@
     animation: none;
   }
 }
+
+.scan-wizard {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 6vh 16px;
+  background: rgba(3, 2, 5, 0.88);
+  backdrop-filter: blur(6px);
+  overflow: auto;
+}
+
+.scan-wizard-card {
+  position: relative;
+  width: min(640px, 100%);
+  background: var(--panel);
+  border: 1px solid var(--line-2);
+  border-radius: 7px;
+  padding: 22px 24px 20px;
+  box-shadow: 0 40px 80px -40px #000;
+}
+
+.scan-wizard-title {
+  font-family: var(--display);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pink);
+  margin: 0 0 14px;
+}
+
+.scan-step {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.scan-step:last-of-type {
+  border-bottom: 0;
+}
+
+.scan-step h4 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ice);
+}
+
+.scan-step-lede {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+}
+
+.scan-facts {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.pairing-code-block {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.pairing-code {
+  font-family: var(--mono);
+  font-size: 28px;
+  letter-spacing: 0.2em;
+  color: var(--cyan);
+  padding: 6px 12px;
+  border: 1px solid rgba(0, 255, 234, 0.35);
+  border-radius: 4px;
+}
+
+.scan-wizard-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}

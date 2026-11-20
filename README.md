@@ -31,8 +31,12 @@ node scripts/serve.mjs
 When `dist/index.html` exists, `serve.mjs` serves the built SPA automatically (set `SERVE_DIST=0` to force
 the repo root). Deploy `dist/` to Vercel with `vercel.json`; `api/contact.js` stays at the project root.
 
-### Scan my PC
+### Scan my PC (hybrid)
 
+See **[docs/HARDWARE_SCAN.md](docs/HARDWARE_SCAN.md)** for pairing, Upstash Redis env vars, and the Windows scanner.
+
+- **Browser scan** — immediate GPU / thread / RAM estimates in the scan wizard.
+- **FitGirl PC Scanner** (Tauri, [`scanner/`](scanner/)) — pairing code upload for full CPU, RAM, GPU, and disk volumes on Vercel.
 - **With the server running** the scan is exact: it reads the CPU model, total RAM, the free space on
   **every drive** (added together for the storage check) and the installed GPU names from this machine.
   It still uses the browser for the display and the GPU as a cross-check.

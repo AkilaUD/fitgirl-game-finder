@@ -1,54 +1,53 @@
 import { useCallback, useMemo, useState } from 'react';
-import { gpuScore, cpuScore, scanPc, parseDxdiag } from '../lib/specs';
+import { gpuScore, cpuScore, parseDxdiag } from '../lib/specs';
 import { readSystemInfo, helperExpected } from '../lib/helperExpected';
+import { runBrowserScan } from '../lib/browserScan';
+import { mapReportToRig } from '../lib/mapReportToRig';
+import type { HardwareReport } from '../lib/hardwareReport';
+import type { HardwareReportVolume } from '../lib/hardwareReport';
+import {
+  clearRigProfile,
+  defaultRigState,
+  loadRigProfile,
+  saveRigProfile,
+} from '../lib/rigStorage';
 import type { DetectedInfo, PcProfile, RigState } from '../lib/gameTypes';
 
-const KEY = 'rf.rig.v2';
-
-function loadSaved(): { rig: RigState; detected: DetectedInfo | null } {
-  try {
-    const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
-    if (saved && (saved.gpu || saved.cpu || saved.ram)) {
-      return {
-        rig: {
-          gpu: saved.gpu || '',
-          cpu: saved.cpu || '',
-          ram: saved.ram ?? null,
-          freeGb: saved.freeGb ?? null,
-        },
-        detected: saved.detected || null,
-      };
-    }
-  } catch {
-    /* ignore */
-  }
-  return { rig: { gpu: '', cpu: '', ram: null, freeGb: null }, detected: null };
-}
-
 export function useRig() {
-  const [initial] = useState(loadSaved);
+  const [initial] = useState(loadRigProfile);
   const [rig, setRig] = useState<RigState>(initial.rig);
   const [detected, setDetected] = useState<DetectedInfo | null>(initial.detected);
   const [scanning, setScanning] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [lastBrowserScan, setLastBrowserScan] = useState<DetectedInfo | null>(null);
+  const [desktopVolumes, setDesktopVolumes] = useState<HardwareReportVolume[]>([]);
 
-  const save = useCallback((nextRig: RigState, nextDetected: DetectedInfo | null) => {
-    try {
-      localStorage.setItem(KEY, JSON.stringify({ ...nextRig, detected: nextDetected }));
-    } catch {
-      /* ignore */
-    }
+  const persist = useCallback((nextRig: RigState, nextDetected: DetectedInfo | null) => {
+    saveRigProfile(nextRig, nextDetected);
   }, []);
 
   const updateRig = useCallback(
     (patch: Partial<RigState>) => {
       setRig((prev) => {
         const next = { ...prev, ...patch };
-        save(next, detected);
+        const det = detected ? {
+          ...detected,
+          provenance: {
+            ...detected.provenance,
+            ...(patch.gpu !== undefined ? { gpu: 'manual' as const } : {}),
+            ...(patch.cpu !== undefined ? { cpu: 'manual' as const } : {}),
+            ...(patch.ram !== undefined ? { ram: 'manual' as const } : {}),
+            ...(patch.freeGb !== undefined ? { freeGb: 'manual' as const } : {}),
+            ...(patch.installMount !== undefined ? { installMount: 'manual' as const } : {}),
+          },
+        } : detected;
+        persist(next, det);
+        if (det) setDetected(det);
         return next;
       });
     },
-    [detected, save],
+    [detected, persist],
   );
 
   const hasRig = Boolean(rig.gpu || rig.cpu || rig.ram);
@@ -76,57 +75,112 @@ export function useRig() {
     : '';
 
   const clearRig = useCallback(() => {
-    const empty = { gpu: '', cpu: '', ram: null, freeGb: null };
-    setRig(empty);
+    setRig(defaultRigState());
     setDetected(null);
-    localStorage.removeItem(KEY);
+    setLastBrowserScan(null);
+    setDesktopVolumes([]);
+    clearRigProfile();
   }, []);
+
+  const mergeLocalServer = useCallback(
+    async (browser: DetectedInfo, nextRig: RigState, nextDetected: DetectedInfo) => {
+      const local = await readSystemInfo();
+      if (!local) return { rig: nextRig, detected: nextDetected };
+
+      const merged: DetectedInfo = { ...browser, ...local, source: 'local-server' };
+      let rigOut = { ...nextRig };
+
+      if (local.cpu) {
+        rigOut.cpu = String(local.cpu)
+          .replace(/\s+/g, ' ')
+          .replace(/\s*\(R\)|\s*\(TM\)/gi, '')
+          .replace(/\s*CPU\s*@.*$/i, '')
+          .trim();
+        merged.provenance = { ...merged.provenance, cpu: 'desktop' };
+      }
+      if (local.ramGb) {
+        rigOut.ram = Math.round(local.ramGb);
+        merged.provenance = { ...merged.provenance, ram: 'desktop' };
+      }
+      const gpus = (local.gpus || [])
+        .filter((g: string) => !/virtual|basic display|remote|mirror/i.test(g))
+        .sort((a: string, b: string) => (gpuScore(b) || 0) - (gpuScore(a) || 0));
+      if (gpus[0]) {
+        rigOut.gpu = String(gpus[0])
+          .replace(/\s*\((r|tm)\)/gi, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        merged.provenance = { ...merged.provenance, gpu: 'desktop' };
+      } else if (browser.gpus?.[0]) rigOut.gpu = browser.gpus[0];
+
+      if (local.drives?.length) {
+        rigOut.freeGb = Math.round(local.freeGb);
+        merged.drives = local.drives;
+        merged.provenance = { ...merged.provenance, freeGb: 'desktop' };
+      }
+
+      return { rig: rigOut, detected: merged };
+    },
+    [],
+  );
 
   const runScan = useCallback(async () => {
     setScanning(true);
     setScanError(null);
     try {
-      const local = await readSystemInfo();
-      const browser = await scanPc();
-      const nextDetected: DetectedInfo = { ...browser, ...(local || {}) };
-      let nextRig = { ...rig };
+      const browser = await runBrowserScan();
+      setLastBrowserScan(browser);
 
-      if (local) {
-        nextDetected.source = 'local-server';
-        if (local.cpu) {
-          nextRig.cpu = String(local.cpu)
-            .replace(/\s+/g, ' ')
-            .replace(/\s*\(R\)|\s*\(TM\)/gi, '')
-            .replace(/\s*CPU\s*@.*$/i, '')
-            .trim();
-        }
-        if (local.ramGb) nextRig.ram = Math.round(local.ramGb);
-        const gpus = (local.gpus || [])
-          .filter((g: string) => !/virtual|basic display|remote|mirror/i.test(g))
-          .sort((a: string, b: string) => (gpuScore(b) || 0) - (gpuScore(a) || 0));
-        if (gpus[0]) {
-          nextRig.gpu = String(gpus[0])
-            .replace(/\s*\((r|tm)\)/gi, '')
-            .replace(/\s+/g, ' ')
-            .trim();
-        } else if (browser.gpu) nextRig.gpu = browser.gpu;
-        if (local.drives?.length) nextRig.freeGb = Math.round(local.freeGb);
-        else if (browser.freeGb) nextRig.freeGb = Math.round(browser.freeGb);
-      } else {
-        nextDetected.source = 'browser';
-        if (browser.gpu) nextRig.gpu = browser.gpu;
-        if (browser.ram && !browser.ramCapped && !nextRig.ram) nextRig.ram = browser.ram;
+      let nextRig: RigState = { ...rig };
+      let nextDetected: DetectedInfo = browser;
+
+      if (browser.gpus?.[0] && !nextRig.gpu) nextRig.gpu = browser.gpus[0];
+      if (browser.ram && !browser.ramCapped && nextRig.ram == null) nextRig.ram = browser.ram;
+
+      if (helperExpected()) {
+        const merged = await mergeLocalServer(browser, nextRig, nextDetected);
+        nextRig = merged.rig;
+        nextDetected = merged.detected;
       }
 
       setDetected(nextDetected);
       setRig(nextRig);
-      save(nextRig, nextDetected);
+      persist(nextRig, nextDetected);
+      setWizardOpen(true);
     } catch {
       setScanError('The scan was blocked by your browser. Type your specs in manually.');
     } finally {
       setScanning(false);
     }
-  }, [rig, save]);
+  }, [rig, persist, mergeLocalServer]);
+
+  const applyHardwareReport = useCallback(
+    (report: HardwareReport, installMount?: string | null) => {
+      const mount = installMount ?? rig.installMount;
+      const { rig: mapped, detected: det, volumes } = mapReportToRig(report, {
+        installMount: mount,
+        scanSource: 'desktop',
+      });
+      setDesktopVolumes(volumes);
+      setRig(mapped);
+      setDetected(det);
+      persist(mapped, det);
+      setWizardOpen(false);
+    },
+    [rig.installMount, persist],
+  );
+
+  const setInstallMount = useCallback(
+    (mount: string) => {
+      updateRig({ installMount: mount });
+      const vol = desktopVolumes.find((v) => v.driveLetter === mount);
+      if (vol?.freeBytes != null) {
+        const freeGb = Math.round((vol.freeBytes / 1e9) * 10) / 10;
+        updateRig({ installMount: mount, freeGb: Math.round(freeGb) });
+      }
+    },
+    [desktopVolumes, updateRig],
+  );
 
   const applyDxdiag = useCallback(
     (text: string): { ok: boolean; message: string } => {
@@ -146,6 +200,13 @@ export function useRig() {
         ramGb: parsed.ramGb ?? detected?.ramGb ?? null,
         drives: parsed.drives.length ? parsed.drives : detected?.drives,
         gpus: parsed.gpus.length ? parsed.gpus : detected?.gpus,
+        provenance: {
+          ...detected?.provenance,
+          cpu: parsed.cpu ? 'desktop' : detected?.provenance?.cpu,
+          ram: parsed.ramGb != null ? 'desktop' : detected?.provenance?.ram,
+          freeGb: parsed.freeGb != null ? 'desktop' : detected?.provenance?.freeGb,
+          gpu: parsed.gpus.length ? 'desktop' : detected?.provenance?.gpu,
+        },
       };
       const nextRig = { ...rig };
       if (parsed.cpu) nextRig.cpu = parsed.cpu;
@@ -163,7 +224,7 @@ export function useRig() {
 
       setDetected(nextDetected);
       setRig(nextRig);
-      save(nextRig, nextDetected);
+      persist(nextRig, nextDetected);
 
       const bits: string[] = [];
       if (parsed.cpu) bits.push(parsed.cpu);
@@ -174,10 +235,8 @@ export function useRig() {
       if (gpus[0]) bits.push(nextRig.gpu);
       return { ok: true, message: `Added ${bits.join(' · ')}.` };
     },
-    [detected, rig, save],
+    [detected, rig, persist],
   );
-
-  const helperOnPrivateHost = helperExpected();
 
   return {
     rig,
@@ -192,6 +251,12 @@ export function useRig() {
     scanning,
     scanError,
     applyDxdiag,
-    helperOnPrivateHost,
+    applyHardwareReport,
+    helperOnPrivateHost: helperExpected(),
+    wizardOpen,
+    setWizardOpen,
+    lastBrowserScan,
+    desktopVolumes,
+    setInstallMount,
   };
 }

@@ -1,0 +1,95 @@
+:root {
+  --bg: #0b0810;
+  --text: #f4edf7;
+  --pink: #f72585;
+  --cyan: #00ffea;
+  --muted: #968aa0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font: 15px/1.5 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+h1 {
+  font-size: 20px;
+  color: var(--pink);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.lede {
+  color: var(--muted);
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 12px 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+input {
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid #33203f;
+  background: #08060c;
+  color: var(--text);
+  font: inherit;
+  text-transform: none;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+
+button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 1px solid var(--pink);
+  background: var(--pink);
+  color: #0a0510;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.msg {
+  color: var(--cyan);
+}
+
+.summary {
+  border: 1px solid #33203f;
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-top: 16px;
+}
+
+.summary h2 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--cyan);
+}

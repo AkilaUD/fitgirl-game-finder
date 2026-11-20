@@ -9,6 +9,7 @@ export default defineConfig({
     proxy: {
       '/api/system': 'http://127.0.0.1:5180',
       '/api/contact': 'http://127.0.0.1:5180',
+      '/api/pc-scan': 'http://127.0.0.1:5180',
     },
   },
 });

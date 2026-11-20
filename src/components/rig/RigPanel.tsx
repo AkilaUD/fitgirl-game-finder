@@ -1,6 +1,8 @@
 import { useId, useMemo, useState } from 'react';
 import type { Game } from '../../lib/gameTypes';
 import type { useRig } from '../../hooks/useRig';
+import { usePcScanPairing } from '../../hooks/usePcScanPairing';
+import { ScanWizard } from './ScanWizard';
 import { ScanFX } from '../vfx/ScanFX';
 import { helperExpected } from '../../lib/helperExpected';
 import { evaluate } from '../../lib/specs';
@@ -59,6 +61,10 @@ export function RigPanel({ rig, games, gpuSuggestions, cpuSuggestions, onScan, f
     const result = rig.applyDxdiag(dxText);
     setDxStatus({ cls: result.ok ? 'ok' : 'err', text: result.message });
   };
+
+  const pairing = usePcScanPairing((report) =>
+    rig.applyHardwareReport(report, rig.rig.installMount),
+  );
 
   return (
     <section
@@ -201,13 +207,28 @@ export function RigPanel({ rig, games, gpuSuggestions, cpuSuggestions, onScan, f
         ) : null}
       </div>
       <p className="fineprint">
-        The scan always runs here in the browser, so nothing leaves your machine. In a hosted copy it can only read the
-        GPU name, thread count and a RAM figure capped at 8 GB — the CPU model and free disk space have to be typed in.
-        Run the site locally with <code>node scripts/serve.mjs</code> and the helper reports the real CPU model, total
-        RAM and the free space on <b>every drive</b>. Every field stays editable. On a hosted copy, paste a DxDiag report
-        into the box above and the CPU model, total RAM, GPU and free space on every drive are filled in exactly, without
-        a server.
+        Browser scan runs immediately in this tab. For exact CPU, RAM, GPU and disk volumes on the live site, use{' '}
+        <strong>FitGirl PC Scanner</strong> (pairing code in the scan wizard) or paste a DxDiag report below. Locally,{' '}
+        <code>node scripts/serve.mjs</code> can also read this PC directly. Nothing is uploaded unless you confirm it in
+        the desktop scanner.
       </p>
+
+      <ScanWizard
+        open={rig.wizardOpen}
+        phase={pairing.phase}
+        session={pairing.session}
+        error={pairing.error}
+        browserDetected={rig.lastBrowserScan}
+        volumes={rig.desktopVolumes}
+        installMount={rig.rig.installMount ?? null}
+        onInstallMount={rig.setInstallMount}
+        onClose={() => rig.setWizardOpen(false)}
+        onStartPairing={() => {
+          pairing.markBrowserDone();
+          void pairing.startPairing();
+        }}
+        onReset={pairing.reset}
+      />
     </section>
   );
 }
@@ -215,7 +236,9 @@ export function RigPanel({ rig, games, gpuSuggestions, cpuSuggestions, onScan, f
 function buildDetected(rig: RigApi) {
   const d = rig.detected || {};
   const bits: string[] = [];
+  if (d.source === 'desktop') bits.push('<span class="tag">FitGirl PC Scanner</span>');
   if (d.source === 'local-server') bits.push('<span class="tag">read from this PC</span>');
+  if (rig.rig.installMount) bits.push(`<span>Install drive <b>${esc(rig.rig.installMount)}</b></span>`);
   if (d.cpu) bits.push(`<span>CPU <b>${esc(String(d.cpu).replace(/\s+/g, ' '))}</b></span>`);
   if (d.cores) bits.push(`<span><b>${d.cores}</b> threads</span>`);
   if (d.ramGb) bits.push(`<span>RAM <b>${d.ramGb} GB</b></span>`);
