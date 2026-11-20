@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node scripts/pack-scanner-portable.mjs",
+    "prebuild": "node scripts/pack-scanner-portable.mjs && node scripts/inject-scanner-zip.mjs",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
