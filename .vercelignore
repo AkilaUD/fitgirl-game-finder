@@ -1,0 +1,3 @@
+# Desktop Tauri — built locally / in GitHub Actions, not on Vercel
+scanner/src-tauri/target
+scanner/src-tauri/gen
