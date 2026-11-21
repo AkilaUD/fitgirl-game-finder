@@ -6,14 +6,13 @@ Configured in root [`vercel.json`](../vercel.json).
 
 | Service | Root | Role on Vercel |
 |---------|------|----------------|
-| **api** | `.` | Public — `/api/*` serverless (`api/`, pairing + contact) |
-| **app** | `.` | Public — Repack Finder static Vite build |
+| **app** | `.` | Public — Vite SPA **plus** `api/` serverless (pairing, contact, scanner download) |
 | **scanner** | `scanner` | Public at `/scanner` — Tauri dev UI only (no WMI in the browser) |
-| **Tauri desktop** | `scanner/src-tauri` | **Not a Vercel service** — build on Windows with `npm run scanner:build-exe` or `npm run scanner:build` (see `scanner/README.md`) |
+| **src-tauri** | `scanner/src-tauri` | **Listed for Vercel auto-detect only** — `ignoreCommand: exit 0` skips cloud build; use `npm run scanner:build-exe` on Windows |
 
 ## Public rewrites (most specific first)
 
-1. `/api/*` → **api** (pairing, contact, installer `GET` on `/api/pc-scan/pair`; diagnostic `GET /api/pc-scan/health`)
+1. `/api/*` → **app** (pairing, contact, installer `GET` on `/api/pc-scan/pair`; diagnostic `GET /api/pc-scan/health`)
 2. `/scanner`, `/scanner/*` → **scanner**
 3. `/downloads/*`, `/assets/*`, `/data/*` → **app**
 4. SPA fallback → `/index.html` on **app** (excludes `api/`, `downloads/`, `scanner`)
