@@ -1,30 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "services": {
-    "app": {
-      "root": ".",
-      "framework": "vite",
-      "installCommand": "npm install",
-      "buildCommand": "npm run build",
-      "outputDirectory": "dist",
-      "functions": {
-        "api/**/*.js": {
-          "maxDuration": 15
-        }
-      }
-    },
-    "scanner": {
-      "root": "scanner",
-      "framework": "vite",
-      "installCommand": "npm install",
-      "buildCommand": "SCANNER_BASE_PATH=/scanner/ npm run build",
-      "outputDirectory": "dist"
-    },
-    "src-tauri": {
-      "root": "scanner/src-tauri",
-      "framework": "rust",
-      "entrypoint": "src/main.rs",
-      "ignoreCommand": "exit 0"
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 15
     }
   },
   "headers": [
@@ -39,32 +21,8 @@
   ],
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": { "service": "app" }
-    },
-    {
-      "source": "/scanner",
-      "destination": { "service": "scanner" }
-    },
-    {
-      "source": "/scanner/:path*",
-      "destination": { "service": "scanner" }
-    },
-    {
-      "source": "/downloads/:file*",
-      "destination": { "service": "app" }
-    },
-    {
-      "source": "/assets/:path*",
-      "destination": { "service": "app" }
-    },
-    {
-      "source": "/data/:path*",
-      "destination": { "service": "app" }
-    },
-    {
-      "source": "/(.*)",
-      "destination": { "service": "app" }
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
     }
   ]
 }
