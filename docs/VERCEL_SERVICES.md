@@ -9,7 +9,7 @@ Configured in root [`vercel.json`](../vercel.json).
 | **api** | `.` | Public — `/api/*` serverless (`api/`, pairing + contact) |
 | **app** | `.` | Public — Repack Finder static Vite build |
 | **scanner** | `scanner` | Public at `/scanner` — Tauri dev UI only (no WMI in the browser) |
-| **src-tauri** | `scanner/src-tauri` | **Not built on Vercel** (`ignoreCommand: exit 0`) — desktop Rust/Tauri; use `npm run scanner:build-exe` locally |
+| **Tauri desktop** | `scanner/src-tauri` | **Not a Vercel service** — build on Windows with `npm run scanner:build-exe` or `npm run scanner:build` (see `scanner/README.md`) |
 
 ## Public rewrites (most specific first)
 
