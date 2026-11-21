@@ -22,11 +22,6 @@
       "installCommand": "npm install",
       "buildCommand": "SCANNER_BASE_PATH=/scanner/ npm run build",
       "outputDirectory": "dist"
-    },
-    "src-tauri": {
-      "root": "scanner/src-tauri",
-      "runtime": "rust",
-      "ignoreCommand": "exit 0"
     }
   },
   "headers": [
