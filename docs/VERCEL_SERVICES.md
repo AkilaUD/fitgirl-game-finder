@@ -1,52 +1,38 @@
-# Vercel Services layout
+# Vercel deployment (single project)
 
-Configured in root [`vercel.json`](../vercel.json).
+Root [`vercel.json`](../vercel.json) uses the **standard Vite + `api/` layout** (not multi-service mode).
 
-## Services
+## Why not “Services” mode?
 
-| Service | Root | Role on Vercel |
-|---------|------|----------------|
-| **app** | `.` | Public — Vite SPA **plus** `api/` serverless (pairing, contact, scanner download) |
-| **scanner** | `scanner` | Public at `/scanner` — Tauri dev UI only (no WMI in the browser) |
-| **src-tauri** | `scanner/src-tauri` | **Listed for Vercel auto-detect only** — `ignoreCommand: exit 0` skips cloud build; use `npm run scanner:build-exe` on Windows |
+Multi-service `vercel.json` caused:
 
-## Public rewrites (most specific first)
+- `/api/*` **404** when API was a separate service without functions
+- **Rust/Tauri gdk-3.0** build failures on Vercel Linux for `scanner/src-tauri`
 
-1. `/api/*` → **app** (pairing, contact, installer `GET` on `/api/pc-scan/pair`; diagnostic `GET /api/pc-scan/health`)
-2. `/scanner`, `/scanner/*` → **scanner**
-3. `/downloads/*`, `/assets/*`, `/data/*` → **app**
-4. SPA fallback → `/index.html` on **app** (excludes `api/`, `downloads/`, `scanner`)
+Tauri and the themed `.exe` are **built on Windows** only (`npm run scanner:build-exe`). The `scanner/` web UI is dev-only unless you add a separate deploy later.
 
-## Bindings
+## What deploys
 
-**None.** You chose same-origin browser calls and public API URLs for the desktop `.exe` (no internal service-to-service HTTP).
+| Piece | On Vercel |
+|-------|-----------|
+| Repack Finder SPA | `dist/` from `npm run build` |
+| Pairing + contact | `api/**/*.js` serverless |
+| Scanner `.exe` | `public/downloads/` (and `GET /api/pc-scan/pair`) |
 
-If you later split a private API service, add on the caller:
+## Env vars
 
-```json
-"bindings": [
-  { "type": "service", "service": "api", "format": "url", "env": "API_URL" }
-]
-```
+Pairing storage (one of):
 
-Use `process.env.API_URL` only in serverless code (not in Vite client bundles).
+- `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` (or `KV_REST_API_*`)
+- `BLOB_READ_WRITE_TOKEN`
 
-## Code paths
+Optional: `PC_SCAN_PAIR_TTL_SEC`, `ALLOWED_ORIGINS`, `RESEND_API_KEY`
 
-| Caller | API base |
-|--------|-----------|
-| Repack Finder (`usePcScanPairing`) | Relative `/api/*` via [`src/lib/apiBase.ts`](../src/lib/apiBase.ts); optional `VITE_PC_SCAN_API_BASE` |
-| Scanner web UI (`scanner/src/App.tsx`) | `window.location.origin` (same Vercel domain → **app** `/api/*`) |
-| Desktop `.exe` / Tauri | User-entered or default production URL |
+## Verify after deploy
 
-## Env vars (Vercel project — **app**)
-
-- Pairing storage: `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` (or `KV_REST_API_*`), **or** `BLOB_READ_WRITE_TOKEN` — see [HARDWARE_SCAN.md](HARDWARE_SCAN.md)
-- `RESEND_API_KEY`
-- Optional: `ALLOWED_ORIGINS`, `PC_SCAN_PAIR_TTL_SEC`
+1. `GET /api/pc-scan/health` → `"ok": true`
+2. **Generate pairing code** in the scan wizard
 
 ## Local dev
 
-- Website: `npm run dev`
-- All services: `vercel dev` (see [Services docs](https://vercel.com/docs/services))
-- Tauri desktop: `cd scanner && npm run tauri dev`
+`npm run dev` — `/api/pc-scan/*` is served by the Vite plugin (`scripts/vitePcScanPlugin.mjs`).
