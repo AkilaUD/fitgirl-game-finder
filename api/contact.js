@@ -54,7 +54,8 @@ async function readJson(req) {
 async function sendContactMail({ name, email, message }) {
   const key = process.env.RESEND_API_KEY;
   if (!key) {
-    return { status: 503, error: 'Email is not configured: set RESEND_API_KEY in the Vercel project environment variables and redeploy.' };
+    console.warn('RESEND_API_KEY is not set on this deployment.');
+    return { status: 503, error: 'Email is not available right now. Please try again later.' };
   }
   const from = process.env.CONTACT_FROM || 'Repack Finder <onboarding@resend.dev>';
   const to = process.env.CONTACT_TO || 'nexorasoftwarestudio@gmail.com';
