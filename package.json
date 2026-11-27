@@ -9,6 +9,8 @@
     "scanner:pack": "node scripts/pack-scanner-portable.mjs && node scripts/inject-scanner-zip.mjs",
     "preview": "vite preview",
     "test": "vitest run",
+    "env:check-pairing": "node scripts/check-upstash-env.mjs",
+    "data:refresh:daily": "node scripts/daily-refresh.mjs",
     "scanner:build-exe": "node scripts/compile-scanner-exe.mjs && node scripts/inject-scanner-zip.mjs",
     "scanner:pack-portable": "node scripts/pack-scanner-portable.mjs",
     "scanner:copy-download": "node scripts/copy-scanner-download.mjs",

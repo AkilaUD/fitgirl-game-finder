@@ -21,6 +21,8 @@ The site is a static SPA plus serverless APIs. Browsers cannot read the host CPU
 
 ## Vercel setup
 
+Full checklist (Production + Preview + Development): **[docs/UPSTASH_VERCEL.md](UPSTASH_VERCEL.md)**.
+
 Pairing needs **shared storage** (serverless cannot use in-memory). Pick **one**:
 
 ### Option A — Upstash Redis (recommended)

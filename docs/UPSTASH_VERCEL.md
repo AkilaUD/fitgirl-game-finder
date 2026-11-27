@@ -1,51 +1,101 @@
-# Upstash + Vercel checklist (pairing 503)
+# Upstash + Vercel (all environments)
 
-When the site shows **PC scan pairing is not configured**, the API is running but **no Redis env vars** reach serverless.
+Pairing needs Redis env vars on **every** Vercel environment you use:
 
-## 1. Confirm on production
+| Vercel scope | When it runs |
+|--------------|----------------|
+| **Production** | `fitgirl-game-finder.vercel.app` |
+| **Preview** | PR / branch deploy URLs |
+| **Development** | `vercel dev` (optional if you use `npm run dev` + `.env`) |
 
-```text
+## Quick check
+
+```http
 GET https://fitgirl-game-finder.vercel.app/api/pc-scan/health
 ```
 
-You need:
+Success: `"ok": true`, `"kind": "redis"`.  
+Failure: `"storageEnvKeys": []` → vars never reached that deploy.
 
-```json
-{ "ok": true, "kind": "redis", ... }
+---
+
+## Step A — Link Storage to the project
+
+1. [Vercel](https://vercel.com) → **fitgirl-game-finder**
+2. **Storage** → your Upstash Redis DB (e.g. `fitgirl-pc-scan`)
+3. **Settings** → **Connect to Project** → pick **fitgirl-game-finder**
+
+The integration usually creates env vars automatically. If not, use Step B.
+
+---
+
+## Step B — Environment variables (check all three)
+
+**Settings** → **Environment Variables**.
+
+For **each** variable, enable **Production**, **Preview**, and **Development**:
+
+| Variable | Required |
+|----------|----------|
+| `UPSTASH_REDIS_REST_URL` | Yes |
+| `UPSTASH_REDIS_REST_TOKEN` | Yes |
+
+(Or `KV_REST_API_URL` + `KV_REST_API_TOKEN` from the Upstash–Vercel marketplace.)
+
+### Manual copy from Upstash
+
+1. [console.upstash.com](https://console.upstash.com) → database → tab **REST API**
+2. Copy URL + token
+3. Vercel → **Add** each name, paste value, select **all three** environment boxes → Save
+
+Optional (recommended for Preview deploys):
+
+```env
+ALLOWED_ORIGINS=https://fitgirl-game-finder.vercel.app,http://localhost:5173
 ```
 
-If `"ok": false` and `"storageEnvKeys": []`, Vercel never injected credentials into this deploy.
+Add each preview hostname if you restrict origins (leave unset to allow same-origin only).
 
-## 2. Link database to this project
+---
 
-1. [Vercel Dashboard](https://vercel.com) → project **fitgirl-game-finder**
-2. **Storage** → your Upstash Redis database
-3. **Settings** → **Connect Project** / **Connected Projects**
-4. Select **fitgirl-game-finder**
-5. Enable **Production** (and Preview if you use preview URLs)
+## Step C — Redeploy each URL you use
 
-## 3. Environment variables
+Env changes do **not** affect live traffic until a **new deployment**:
 
-**Settings** → **Environment Variables**. You should see (from the integration):
+1. **Deployments** → latest → **⋯** → **Redeploy** (Production)
+2. Redeploy Preview branches if you test pairing there
+3. After `vercel env pull`, run `vercel dev` if you use Vercel dev (Development env)
 
-| Name | Environments |
-|------|----------------|
-| `UPSTASH_REDIS_REST_URL` | Production (+ Preview) |
-| `UPSTASH_REDIS_REST_TOKEN` | Production (+ Preview) |
+---
 
-Some integrations use `KV_REST_API_URL` / `KV_REST_API_TOKEN` instead — both work.
+## Local development (`npm run dev`)
 
-### Manual fallback
+Not the same as Vercel’s “Development” scope — uses files on disk:
 
-1. [Upstash Console](https://console.upstash.com) → your database → **REST API**
-2. Copy **UPSTASH_REDIS_REST_URL** and **UPSTASH_REDIS_REST_TOKEN**
-3. Vercel → **Environment Variables** → add both manually → **Production**
-4. **Deployments** → … on latest → **Redeploy**
+```bash
+# Copy template
+copy .env.example .env
+# Edit .env with the same UPSTASH_* values as Vercel
+npm run dev
+```
 
-## 4. Redeploy
+Vite injects `.env` into the pairing middleware (`scripts/vitePcScanPlugin.mjs`).
 
-Env changes apply only after a **new deployment**. Trigger **Redeploy** on the Production deployment.
+Verify locally:
 
-## 5. Local dev
+```bash
+npm run env:check-pairing
+```
 
-Copy the same two vars into `.env` at the repo root (see `.env.example`). Restart `npm run dev`.
+---
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---------|-----|
+| 503 on production, health `ok: false` | Vars missing for **Production** or no redeploy after adding |
+| Works on main URL, fails on PR URL | Enable **Preview** on both Upstash vars; redeploy preview |
+| Works on Vercel, fails on `npm run dev` | Add vars to root `.env`; restart Vite |
+| Vars in dashboard but health empty | Wrong project linked in Storage, or typo in var names |
+
+See also [HARDWARE_SCAN.md](HARDWARE_SCAN.md).

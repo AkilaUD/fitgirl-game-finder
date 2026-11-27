@@ -1,0 +1,79 @@
+name: Daily games catalogue refresh
+
+on:
+  schedule:
+    # 04:30 UTC ≈ 10:00 Sri Lanka — adjust as needed
+    - cron: '30 4 * * *'
+  workflow_dispatch:
+    inputs:
+      steam_limit:
+        description: Max new Steam requirement fetches this run
+        required: false
+        default: '120'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-games-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Restore pipeline cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .tmp/raw.jsonl
+            .tmp/urls.json
+            .tmp/images.json
+            .tmp/reqs.jsonl
+            .tmp/reqs-skip.json
+            .tmp/appid-map.json
+            .tmp/steamdb.min.json.gz
+          key: games-pipeline-${{ runner.os }}-${{ hashFiles('public/data/games.json') }}
+          restore-keys: |
+            games-pipeline-${{ runner.os }}-
+
+      - name: Refresh catalogue
+        env:
+          STEAM_LIMIT: ${{ github.event.inputs.steam_limit || '120' }}
+          GAP: '650'
+          CONC: '10'
+        run: node scripts/daily-refresh.mjs
+
+      - name: Save pipeline cache
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .tmp/raw.jsonl
+            .tmp/urls.json
+            .tmp/images.json
+            .tmp/reqs.jsonl
+            .tmp/reqs-skip.json
+            .tmp/appid-map.json
+            .tmp/steamdb.min.json.gz
+          key: games-pipeline-${{ runner.os }}-${{ hashFiles('public/data/games.json') }}
+
+      - name: Commit and push if dataset changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/games.json data/suggestions.json public/data/games.json public/data/suggestions.json
+          if git diff --staged --quiet; then
+            echo "No catalogue changes — skip commit"
+            exit 0
+          fi
+          COUNT=$(node -p "JSON.parse(require('fs').readFileSync('public/data/games.json','utf8')).count")
+          GENERATED=$(node -p "JSON.parse(require('fs').readFileSync('public/data/games.json','utf8')).generated")
+          git commit -m "chore(data): daily catalogue refresh (${COUNT} games, ${GENERATED})"
+          git push
