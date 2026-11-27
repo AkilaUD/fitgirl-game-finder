@@ -1,5 +1,6 @@
 import { Analytics } from '@vercel/analytics/react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext';
 import { VfxProvider } from './context/VfxContext';
 import { GameShell } from './components/layout/GameShell';
 import { HomePage } from './pages/HomePage';
@@ -8,7 +9,8 @@ import { NotFoundPage } from './pages/NotFoundPage';
 
 export default function App() {
   return (
-    <VfxProvider>
+    <ThemeProvider>
+      <VfxProvider>
       <BrowserRouter>
         <GameShell>
           <Routes>
@@ -19,6 +21,7 @@ export default function App() {
         </GameShell>
       </BrowserRouter>
       <Analytics />
-    </VfxProvider>
+      </VfxProvider>
+    </ThemeProvider>
   );
 }

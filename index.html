@@ -9,6 +9,12 @@
       content="Filter FitGirl repacks by download size and release date, and see which ones your PC meets the minimum or recommended requirements for."
     />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect fill='%23F72585' width='32' height='32' rx='3'/><path fill='%23070509' d='M6 6h20v8h-8v12H6z'/></svg>" />
+    <script>
+      try {
+        var t = localStorage.getItem('rf.theme');
+        if (t === 'neon' || t === 'cyber') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

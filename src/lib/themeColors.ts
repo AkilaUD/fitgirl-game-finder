@@ -1,10 +1,6 @@
-/** Matches :root in src/styles/global.css */
-export const THEME = {
-  pink: '#F72585',
-  pink2: '#FF5CA2',
-  cyan: '#00FFEA',
-  ice: '#7DF9FF',
-  magenta: '#B5179E',
-  black: '#070509',
-  bg: '#0B0810',
-} as const;
+import { SITE_THEMES, type SiteThemeId } from './siteTheme';
+
+/** Three.js / static fallback — call `paletteForTheme` when theme changes. */
+export function paletteForTheme(id: SiteThemeId) {
+  return SITE_THEMES[id];
+}

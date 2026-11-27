@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { GlitchTitle } from '../vfx/GlitchTitle';
 import { useVfx } from '../../context/VfxContext';
+import { ThemeSwitcher } from './ThemeSwitcher';
 
 interface HeaderBarProps {
   query: string;
@@ -39,6 +40,7 @@ export function HeaderBar({ query, onQuery, onScan, scanning }: HeaderBarProps) 
             onChange={(e) => onQuery(e.target.value)}
           />
         </label>
+        <ThemeSwitcher />
         <div className="intensity-toggle" title="Visual effects intensity">
           <button type="button" className={intensity === 'normal' ? 'on' : ''} onClick={() => setIntensity('normal')}>
             Normal

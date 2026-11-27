@@ -1,0 +1,54 @@
+/* Default: Cyber (pink / cyan) */
+:root,
+[data-theme='cyber'] {
+  --black: #070509;
+  --bg: #0b0810;
+  --panel: #0d0a12;
+  --panel-2: #120e1a;
+  --line: #211829;
+  --line-2: #33203f;
+  --text: #f4edf7;
+  --muted: #968aa0;
+  --dim: #6c6176;
+  --pink: #f72585;
+  --pink-2: #ff5ca2;
+  --magenta: #b5179e;
+  --cyan: #00ffea;
+  --ice: #7df9ff;
+  --accent-rgb: 247, 37, 133;
+  --glow-rgb: 0, 255, 234;
+  --top-bg: rgba(7, 5, 9, 0.94);
+  --top-border: #2a1030;
+  --divider: #170f1c;
+  --input-surface: #0b0810;
+  --selection-fg: #0a0510;
+  --radius: 6px;
+  --display: 'Bahnschrift SemiBold Condensed', 'Bahnschrift', 'DIN Condensed', 'Franklin Gothic Medium', 'Segoe UI',
+    system-ui, sans-serif;
+  --mono: 'Cascadia Mono', 'Consolas', ui-monospace, 'SF Mono', monospace;
+}
+
+/* Neon poster — charcoal + lime (reference artwork) */
+[data-theme='neon'] {
+  --black: #0e1111;
+  --bg: #0e1111;
+  --panel: #1a1d23;
+  --panel-2: #1e2229;
+  --line: #2a2f38;
+  --line-2: #3a424d;
+  --text: #f5f7fa;
+  --muted: #9aa3ad;
+  --dim: #6b7580;
+  --pink: #7cfc00;
+  --pink-2: #66ff00;
+  --magenta: #4bc200;
+  --cyan: #b8ff5c;
+  --ice: #e8ffe8;
+  --accent-rgb: 124, 252, 0;
+  --glow-rgb: 184, 255, 92;
+  --top-bg: rgba(14, 17, 17, 0.94);
+  --top-border: #243018;
+  --divider: #1c2118;
+  --input-surface: #12151a;
+  --selection-fg: #0e1111;
+}

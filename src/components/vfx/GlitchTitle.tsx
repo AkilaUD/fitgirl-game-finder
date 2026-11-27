@@ -1,7 +1,8 @@
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap, useGSAP } from '../../lib/gsap';
-import { THEME } from '../../lib/themeColors';
+import { paletteForTheme } from '../../lib/themeColors';
+import { useSiteTheme } from '../../context/ThemeContext';
 import { useVfx } from '../../context/VfxContext';
 
 interface GlitchTitleProps {
@@ -13,6 +14,8 @@ interface GlitchTitleProps {
 export function GlitchTitle({ to = '/', children, className }: GlitchTitleProps) {
   const scope = useRef<HTMLSpanElement>(null);
   const { intensity, reducedMotion } = useVfx();
+  const { theme } = useSiteTheme();
+  const palette = paletteForTheme(theme);
 
   useGSAP(
     () => {
@@ -58,7 +61,7 @@ export function GlitchTitle({ to = '/', children, className }: GlitchTitleProps)
           burst();
         } else {
           gsap.to(main, {
-            textShadow: `0 0 12px ${THEME.pink}44`,
+            textShadow: `0 0 12px ${palette.pink}44`,
             repeat: -1,
             yoyo: true,
             duration: 2.4,
@@ -74,7 +77,7 @@ export function GlitchTitle({ to = '/', children, className }: GlitchTitleProps)
 
       return () => mm.revert();
     },
-    { scope, dependencies: [intensity, reducedMotion], revertOnUpdate: true },
+    { scope, dependencies: [intensity, reducedMotion, theme], revertOnUpdate: true },
   );
 
   const content = (

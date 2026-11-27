@@ -2,9 +2,11 @@ import { Suspense, useEffect, useMemo, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
+import { useSiteTheme } from '../../context/ThemeContext';
 import { useVfx } from '../../context/VfxContext';
-import { THEME } from '../../lib/themeColors';
+import { paletteForTheme } from '../../lib/themeColors';
 import type { VfxIntensity } from '../../context/VfxContext';
+import type { SiteThemeId } from '../../lib/siteTheme';
 
 const AURORA_FRAG = /* glsl */ `
   uniform float uTime;
@@ -71,7 +73,20 @@ const AURORA_VERT = /* glsl */ `
   }
 `;
 
-function AuroraPlane({ intensity }: { intensity: VfxIntensity }) {
+function hexToRgb(hex: string): [number, number, number] {
+  const n = Number.parseInt(hex.replace('#', ''), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+function AuroraPlane({
+  intensity,
+  themeId,
+}: {
+  intensity: VfxIntensity;
+  themeId: SiteThemeId;
+}) {
+  const palette = paletteForTheme(themeId);
+
   const mat = useMemo(() => {
     return new THREE.ShaderMaterial({
       transparent: true,
@@ -80,18 +95,21 @@ function AuroraPlane({ intensity }: { intensity: VfxIntensity }) {
         uTime: { value: 0 },
         uIntensity: { value: intensity === 'ultra' ? 1 : 0.45 },
         uMouse: { value: new THREE.Vector2(0, 0) },
-        uPink: { value: new THREE.Color(THEME.pink) },
-        uCyan: { value: new THREE.Color(THEME.cyan) },
-        uMagenta: { value: new THREE.Color(THEME.magenta) },
+        uPink: { value: new THREE.Color(palette.pink) },
+        uCyan: { value: new THREE.Color(palette.cyan) },
+        uMagenta: { value: new THREE.Color(palette.magenta) },
       },
       vertexShader: AURORA_VERT,
       fragmentShader: AURORA_FRAG,
     });
-  }, [intensity]);
+  }, [intensity, palette.pink, palette.cyan, palette.magenta]);
 
   useEffect(() => {
     mat.uniforms.uIntensity.value = intensity === 'ultra' ? 1 : 0.45;
-  }, [intensity, mat]);
+    mat.uniforms.uPink.value.set(palette.pink);
+    mat.uniforms.uCyan.value.set(palette.cyan);
+    mat.uniforms.uMagenta.value.set(palette.magenta);
+  }, [intensity, palette, mat]);
 
   const { pointer } = useThree();
 
@@ -107,18 +125,29 @@ function AuroraPlane({ intensity }: { intensity: VfxIntensity }) {
   );
 }
 
-function SceneContent({ starCount, intensity }: { starCount: number; intensity: VfxIntensity }) {
+function SceneContent({
+  starCount,
+  intensity,
+  themeId,
+}: {
+  starCount: number;
+  intensity: VfxIntensity;
+  themeId: SiteThemeId;
+}) {
+  const palette = paletteForTheme(themeId);
   return (
     <>
-      <color attach="background" args={[THEME.black]} />
+      <color attach="background" args={[palette.black]} />
       <Stars radius={80} depth={40} count={starCount} factor={3} fade speed={0.6} />
-      <AuroraPlane intensity={intensity} />
+      <AuroraPlane intensity={intensity} themeId={themeId} />
     </>
   );
 }
 
 export function SceneBackdrop() {
   const { intensity, reducedMotion } = useVfx();
+  const { theme } = useSiteTheme();
+  const palette = paletteForTheme(theme);
   const [active, setActive] = useState(!document.hidden);
   const starCount = intensity === 'ultra' ? 6000 : 2200;
 
@@ -128,13 +157,16 @@ export function SceneBackdrop() {
     return () => document.removeEventListener('visibilitychange', onVis);
   }, []);
 
+  const [ar, ag, ab] = hexToRgb(palette.pink);
+  const [gr, gg, gb] = hexToRgb(palette.cyan);
+
   if (reducedMotion) {
     return (
       <div
         className="vfx-backdrop"
         aria-hidden
         style={{
-          background: `radial-gradient(700px 380px at 80% -10%, rgba(247,37,133,.13), transparent 70%), radial-gradient(620px 360px at 8% 104%, rgba(0,255,234,.07), transparent 72%), ${THEME.bg}`,
+          background: `radial-gradient(700px 380px at 80% -10%, rgba(${ar},${ag},${ab},.13), transparent 70%), radial-gradient(620px 360px at 8% 104%, rgba(${gr},${gg},${gb},.07), transparent 72%), ${palette.bg}`,
         }}
       />
     );
@@ -149,7 +181,7 @@ export function SceneBackdrop() {
         gl={{ antialias: false, alpha: true }}
       >
         <Suspense fallback={null}>
-          <SceneContent starCount={starCount} intensity={intensity} />
+          <SceneContent starCount={starCount} intensity={intensity} themeId={theme} />
         </Suspense>
       </Canvas>
     </div>

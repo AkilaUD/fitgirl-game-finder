@@ -28,8 +28,8 @@
     0deg,
     transparent,
     transparent 2px,
-    rgba(0, 255, 234, 0.15) 2px,
-    rgba(0, 255, 234, 0.15) 4px
+    rgba(var(--glow-rgb), 0.15) 2px,
+    rgba(var(--glow-rgb), 0.15) 4px
   );
 }
 
@@ -82,10 +82,10 @@
 @keyframes rigPulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(247, 37, 133, 0.2);
+    box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.2);
   }
   50% {
-    box-shadow: 0 0 24px 2px rgba(0, 255, 234, 0.15);
+    box-shadow: 0 0 24px 2px rgba(var(--glow-rgb), 0.15);
   }
 }
 
@@ -157,7 +157,35 @@
 .intensity-toggle button.on {
   background: var(--pink);
   border-color: var(--pink);
-  color: #0a0510;
+  color: var(--selection-fg);
+  font-weight: 700;
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--dim);
+}
+
+.theme-toggle button {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 4px 8px;
+  font: inherit;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.theme-toggle button.on {
+  background: var(--pink);
+  border-color: var(--pink);
+  color: var(--selection-fg);
   font-weight: 700;
 }
 
@@ -183,7 +211,7 @@
   top: 8px;
   z-index: 100;
   background: var(--pink);
-  color: #0a0510;
+  color: var(--selection-fg);
   padding: 8px 12px;
   font-weight: 700;
 }
