@@ -67,7 +67,8 @@ export function ScanWizard({
         <section className="scan-step">
           <h4>Step 2 — Full hardware (Windows)</h4>
           <p className="muted scan-step-lede">
-            Download and run <strong>FitGirl PC Scanner</strong>, enter the pairing code below, and confirm upload.
+            Download and run <strong>FitGirl PC Scanner</strong>, copy the pairing code below, then use{' '}
+            <strong>Paste & run</strong> in the app to scan and send automatically.
           </p>
           <a
             className="btn primary"

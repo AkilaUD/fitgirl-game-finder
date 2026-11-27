@@ -43,6 +43,26 @@ internal static class Theme
         return b;
     }
 
+    public static Button MakeSecondary(string text)
+    {
+        var b = new Button
+        {
+            Text = text,
+            FlatStyle = FlatStyle.Flat,
+            BackColor = DarkBtn,
+            ForeColor = Text,
+            Font = new Font("Segoe UI", 9f, FontStyle.Bold),
+            Cursor = Cursors.Hand,
+            Height = 30,
+            AutoSize = true,
+            Padding = new Padding(10, 0, 10, 0),
+        };
+        b.FlatAppearance.BorderSize = 1;
+        b.FlatAppearance.BorderColor = Line;
+        b.FlatAppearance.MouseOverBackColor = Panel;
+        return b;
+    }
+
     public static TextBox MakeInput()
     {
         return new TextBox
