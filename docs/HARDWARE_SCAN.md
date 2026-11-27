@@ -65,16 +65,19 @@ Built with `npm run scanner:build-exe` on Windows (`scripts/scanner-win/` — Wi
 
 ### SmartScreen (“Windows protected your PC”)
 
-Unsigned community builds are flagged until **Authenticode**-signed. Users should click **More info** → **Run anyway**. The in-app and website wizard explain this; signing removes the prompt over time.
+You **cannot bypass** SmartScreen without **Authenticode signing** (or Microsoft building reputation on your publisher name over many downloads). There is no supported “skip warning” hack.
 
-To sign after build, set env vars and rebuild on a machine with the Windows SDK `signtool`:
+**Sign the `.exe` when building** (Windows SDK `signtool` required):
 
-- `SCANNER_CODESIGN_PFX` — path to `.pfx`
-- `SCANNER_CODESIGN_PASSWORD` — optional
+```powershell
+$env:SCANNER_CODESIGN_PFX = "$env:USERPROFILE\Desktop\Certificate.pfx"
+$env:SCANNER_CODESIGN_PASSWORD = 'your-pfx-password'   # never commit this
+npm run scanner:build-exe
+```
 
-Or: `signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f cert.pfx public/downloads/FitGirlPcScanner-setup.exe`
+The build script auto-detects `Certificate.pfx` on your Desktop if env vars are not set, but still needs `SCANNER_CODESIGN_PASSWORD`.
 
-OV/EV code-signing certificates are the long-term fix for SmartScreen reputation.
+Self-signed or new certificates may still show a warning until users trust the publisher or you use an **OV/EV** code-signing cert. Signed builds are the correct fix — not a bypass.
 
 ## Security
 

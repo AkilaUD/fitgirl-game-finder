@@ -1,33 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
-
-internal sealed class HudPanel : Panel
-{
-    protected override void OnPaint(PaintEventArgs e)
-    {
-        base.OnPaint(e);
-        var g = e.Graphics;
-        g.SmoothingMode = SmoothingMode.AntiAlias;
-        using (var pen = new Pen(Color.FromArgb(140, 0, 255, 234), 2f))
-        {
-            const int corner = 12;
-            const int inset = 6;
-            var r = ClientRectangle;
-            g.DrawLine(pen, inset, inset, inset + corner, inset);
-            g.DrawLine(pen, inset, inset, inset, inset + corner);
-            g.DrawLine(pen, r.Width - inset - corner, r.Height - inset, r.Width - inset, r.Height - inset);
-            g.DrawLine(pen, r.Width - inset, r.Height - inset - corner, r.Width - inset, r.Height - inset);
-        }
-    }
-}
 
 internal static class Program
 {
@@ -55,99 +34,134 @@ internal sealed class ScannerForm : Form
 
     public ScannerForm()
     {
-        Text = "FitGirl PC Scanner";
-        ClientSize = new Size(480, 520);
+        Text = "FitGirl PC Scanner · Repack Finder";
+        ClientSize = new Size(520, 600);
         Theme.ApplyForm(this);
 
-        var root = new HudPanel
+        var scroll = new Panel
         {
             Dock = DockStyle.Fill,
-            Padding = new Padding(20, 16, 20, 16),
-            BackColor = Theme.Panel,
+            AutoScroll = true,
+            BackColor = Theme.Bg,
+            Padding = new Padding(16, 8, 16, 16),
         };
-        Controls.Add(root);
+        Controls.Add(scroll);
 
-        var layout = new TableLayoutPanel
+        var stack = new FlowLayoutPanel
         {
-            Dock = DockStyle.Fill,
-            ColumnCount = 1,
+            FlowDirection = FlowDirection.TopDown,
+            WrapContents = false,
             AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            Width = 472,
+            BackColor = Theme.Bg,
         };
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
-        root.Controls.Add(layout);
+        scroll.Controls.Add(stack);
 
-        layout.Controls.Add(Theme.MakeHeading("REPACK FINDER · PC SCAN"), 0, 0);
-        layout.Controls.Add(Pad(Theme.MakeStep("Pairs with the website — nothing uploads until you confirm."), 0, 6), 0, 1);
+        var header = new HudPanel
+        {
+            Width = 472,
+            Height = 8,
+            Margin = new Padding(0, 0, 0, 12),
+        };
+        stack.Controls.Add(header);
 
-        var smart = new Label
+        stack.Controls.Add(Theme.MakeHeading("REPACK FINDER · PC SCAN"));
+        stack.Controls.Add(Theme.MakeSubheading(
+            "Pair with the website in your browser. Hardware stays on this PC until you confirm upload."));
+
+        var trust = Theme.MakeCard();
+        var trustLayout = new FlowLayoutPanel
+        {
+            FlowDirection = FlowDirection.TopDown,
+            AutoSize = true,
+            WrapContents = false,
+            Width = 440,
+        };
+        trustLayout.Controls.Add(Theme.MakeStep("Trust"));
+        trustLayout.Controls.Add(new Label
         {
             Text =
-                "Windows SmartScreen may warn because this installer is not code-signed yet. "
-                + "Click \"More info\" → \"Run anyway\". No install — portable scanner only.",
+                "If Windows SmartScreen appears, choose More info → Run anyway. "
+                + "A properly signed build removes that prompt after reputation builds.",
             ForeColor = Theme.Muted,
-            Font = new Font("Segoe UI", 8.25f),
-            AutoSize = true,
+            Font = new Font("Segoe UI", 8.5f),
             MaximumSize = new Size(420, 0),
+            AutoSize = true,
+        });
+        trust.Controls.Add(trustLayout);
+        stack.Controls.Add(trust);
+
+        var apiCard = Theme.MakeCard();
+        var apiLayout = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, AutoSize = true, Width = 440 };
+        apiLayout.Controls.Add(Theme.MakeStep("Website API base"));
+        _api = Theme.MakeInput();
+        _api.Text = DefaultApi;
+        _api.Width = 420;
+        apiLayout.Controls.Add(_api);
+        apiCard.Controls.Add(apiLayout);
+        stack.Controls.Add(apiCard);
+
+        var codeCard = Theme.MakeCard();
+        var codeLayout = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, AutoSize = true, Width = 440 };
+        codeLayout.Controls.Add(Theme.MakeStep("Pairing code (6 characters from the site)"));
+        _code = Theme.MakeCodeInput();
+        _code.Width = 200;
+        codeLayout.Controls.Add(_code);
+        codeCard.Controls.Add(codeLayout);
+        stack.Controls.Add(codeCard);
+
+        var actions = new FlowLayoutPanel
+        {
+            FlowDirection = FlowDirection.LeftToRight,
+            AutoSize = true,
+            WrapContents = false,
+            Width = 472,
+            Margin = new Padding(0, 4, 0, 8),
         };
-        layout.Controls.Add(Pad(smart, 0, 8), 0, 2);
-
-        layout.Controls.Add(Pad(MakeField("Website API", out _api, DefaultApi), 0, 4), 0, 3);
-        _api.Font = new Font("Segoe UI", 9f);
-
-        layout.Controls.Add(Pad(MakeField("Pairing code (6 chars)", out _code, ""), 0, 4), 0, 4);
-        _code.CharacterCasing = CharacterCasing.Upper;
-        _code.MaxLength = 6;
-
-        _scan = Theme.MakePrimary("Scan hardware");
+        _scan = Theme.MakePrimary("1. Scan hardware");
+        _scan.Dock = DockStyle.None;
+        _scan.Width = 220;
+        _scan.Margin = new Padding(0, 0, 10, 0);
         _scan.Click += OnScan;
-        layout.Controls.Add(Pad(_scan, 0, 8), 0, 5);
+        _upload = Theme.MakePrimary("2. Send to website");
+        _upload.Dock = DockStyle.None;
+        _upload.Width = 220;
+        _upload.Enabled = false;
+        _upload.Click += OnUpload;
+        actions.Controls.Add(_scan);
+        actions.Controls.Add(_upload);
+        stack.Controls.Add(actions);
 
+        var detectCard = Theme.MakeCard();
+        var detectLayout = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, AutoSize = true, Width = 440 };
+        detectLayout.Controls.Add(Theme.MakeStep("Detected hardware"));
         _summary = Theme.MakeInput();
         _summary.Multiline = true;
         _summary.ReadOnly = true;
-        _summary.Height = 120;
         _summary.ScrollBars = ScrollBars.Vertical;
-        _summary.Font = new Font("Consolas", 9f);
+        _summary.Font = new Font("Consolas", 9.5f);
         _summary.Text = "Run a scan to see CPU, GPU, and RAM.";
-        layout.Controls.Add(Pad(Wrap("Detected", _summary), 0, 6), 0, 6);
-
-        _upload = Theme.MakePrimary("Send report to website");
-        _upload.Enabled = false;
-        _upload.Click += OnUpload;
-        layout.Controls.Add(Pad(_upload, 0, 6), 0, 7);
+        _summary.Width = 420;
+        _summary.Height = 130;
+        detectLayout.Controls.Add(_summary);
+        detectCard.Controls.Add(detectLayout);
+        stack.Controls.Add(detectCard);
 
         _status = new Label
         {
             ForeColor = Theme.Muted,
             AutoSize = true,
-            MaximumSize = new Size(420, 0),
+            MaximumSize = new Size(460, 0),
+            Font = new Font("Segoe UI", 9f),
         };
-        layout.Controls.Add(_status, 0, 8);
-    }
+        stack.Controls.Add(_status);
 
-    private static Control Pad(Control c, int top, int bottom)
-    {
-        c.Margin = new Padding(0, top, 0, bottom);
-        return c;
-    }
-
-    private static Control Wrap(string label, Control input)
-    {
-        var f = new TableLayoutPanel { AutoSize = true, ColumnCount = 1 };
-        var l = Theme.MakeStep(label);
-        f.Controls.Add(l);
-        f.Controls.Add(input);
-        return f;
-    }
-
-    private static Control MakeField(string label, out TextBox box, string value)
-    {
-        var f = new TableLayoutPanel { AutoSize = true, ColumnCount = 1 };
-        f.Controls.Add(Theme.MakeStep(label));
-        box = Theme.MakeInput();
-        box.Text = value;
-        f.Controls.Add(box);
-        return f;
+        var resetBtn = Theme.MakeGhost("Clear pairing code");
+        resetBtn.Dock = DockStyle.None;
+        resetBtn.Width = 160;
+        resetBtn.Click += (_, __) => { _code.Clear(); _status.Text = ""; };
+        stack.Controls.Add(resetBtn);
     }
 
     private async void OnScan(object sender, EventArgs e)
@@ -194,7 +208,7 @@ internal sealed class ScannerForm : Form
             var code = _code.Text.Trim().ToUpperInvariant();
             var api = NormalizeApi(_api.Text);
             await Task.Run(() => Upload(api, code, _reportJson));
-            _status.ForeColor = Color.FromArgb(120, 220, 160);
+            _status.ForeColor = Theme.Success;
             _status.Text = "Upload complete. Return to the browser — your rig should update automatically.";
             MessageBox.Show(
                 "Report sent successfully.\r\nSwitch back to Repack Finder in your browser.",
@@ -228,6 +242,9 @@ internal sealed class ScannerForm : Form
     private static string NormalizeApi(string raw)
     {
         var s = (raw ?? "").Trim().TrimEnd('/');
+        if (!string.IsNullOrWhiteSpace(s) && !s.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            && !s.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            s = "https://" + s;
         return string.IsNullOrWhiteSpace(s) ? DefaultApi : s;
     }
 
