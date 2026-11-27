@@ -104,7 +104,23 @@ account owner's own address. The 5-messages-per-10-minutes guard lives in each f
 Vercel it is best-effort; Resend's own rate limits still apply. `/api/system` has no hosted counterpart
 on purpose — see above.
 
-## Refresh the data
+## Automatic daily update (GitHub Actions)
+
+**`.github/workflows/refresh-games-data.yml`** runs every day at **04:30 UTC** (and on demand):
+
+1. Scrapes new FitGirl posts  
+2. Updates Steam requirements for up to **120** new/missing titles per run (`STEAM_LIMIT`)  
+3. Refreshes cover images (incremental)  
+4. Rebuilds `data/` + `public/data/`  
+5. **Commits and pushes** to the default branch when the JSON changes → Vercel redeploys if connected to `main`
+
+Enable: repo **Settings → Actions → General → Workflow permissions → Read and write**.
+
+Manual run: **Actions → Daily games catalogue refresh → Run workflow**.
+
+Local same pipeline: `npm run data:refresh:daily` (needs network; ~15–90 min first time).
+
+## Refresh the data (manual)
 
 The pipeline writes into `.tmp/` and ends with `data/games.json` + `data/suggestions.json`.
 
