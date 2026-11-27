@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     ok: pairingConfigured(),
     ...debug,
     ...(debug.storageEnvKeys.length === 0
-      ? { hint: 'No UPSTASH_* or KV_* vars on this function — link Redis to this Vercel project and redeploy. See docs/UPSTASH_VERCEL.md.' }
+      ? { hint: 'Pairing storage env vars are missing on this deployment — see docs/UPSTASH_VERCEL.md.' }
       : {}),
   });
 }

@@ -4,7 +4,6 @@ import type { useRig } from '../../hooks/useRig';
 import { usePcScanPairing } from '../../hooks/usePcScanPairing';
 import { ScanWizard } from './ScanWizard';
 import { ScanFX } from '../vfx/ScanFX';
-import { helperExpected } from '../../lib/helperExpected';
 import { evaluate } from '../../lib/specs';
 
 type RigApi = ReturnType<typeof useRig>;
@@ -167,7 +166,7 @@ export function RigPanel({ rig, games, gpuSuggestions, cpuSuggestions, onScan, f
         <summary>Get exact CPU, RAM and free disk from a DxDiag report</summary>
         <div className="dxdiag-body">
           <p className="dxdiag-help">
-            A browser cannot read your CPU model or free disk space on a hosted copy, but Windows can. Press{' '}
+            This page cannot read your full CPU model or free disk space, but Windows can. Press{' '}
             <code>Win</code>+<code>R</code>, type <code>dxdiag</code>, wait for the progress bar to finish, then click{' '}
             <b>Save All Information…</b>. Open the saved <code>DxDiag.txt</code>, copy all of it and paste it here. The
             report is read in this tab and never uploaded.
@@ -207,10 +206,9 @@ export function RigPanel({ rig, games, gpuSuggestions, cpuSuggestions, onScan, f
         ) : null}
       </div>
       <p className="fineprint">
-        Browser scan runs immediately in this tab. For exact CPU, RAM, GPU and disk volumes on the live site, use{' '}
-        <strong>FitGirl PC Scanner</strong> (pairing code in the scan wizard) or paste a DxDiag report below. Locally,{' '}
-        <code>node scripts/serve.mjs</code> can also read this PC directly. Nothing is uploaded unless you confirm it in
-        the desktop scanner.
+        Quick scan runs in this tab. For exact CPU, RAM, GPU, and disk space, use <strong>FitGirl PC Scanner</strong>{' '}
+        (pairing code in the scan window) or paste a DxDiag report below. Hardware is only sent to this site when you
+        confirm it in the scanner app.
       </p>
 
       <ScanWizard
@@ -253,9 +251,7 @@ function buildDetected(rig: RigApi) {
   if (d.source === 'dxdiag') bits.push('<span class="tag">from your DxDiag</span>');
   if (d.source === 'browser') {
     bits.push(
-      helperExpected()
-        ? '<span>Browser estimate — the local helper is not running. Start it with <code>node scripts/serve.mjs</code> for the exact CPU model, total RAM and free disk space.</span>'
-        : '<span>Browser estimate — a hosted page cannot read your CPU model or free disk space. Paste a DxDiag report below, or type the values in, for an exact match.</span>',
+      '<span>Quick scan — for exact CPU and free disk space, use FitGirl PC Scanner or paste a DxDiag report below.</span>',
     );
   }
   return bits.join('');

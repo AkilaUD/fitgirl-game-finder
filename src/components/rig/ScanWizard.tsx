@@ -19,12 +19,6 @@ interface ScanWizardProps {
   onReset: () => void;
 }
 
-function sourceTag(kind: string, prov?: string) {
-  if (prov === 'desktop') return `${kind} · desktop detected`;
-  if (prov === 'browser') return `${kind} · browser estimate`;
-  if (prov === 'manual') return `${kind} · manual`;
-  return `${kind} · unavailable`;
-}
 
 export function ScanWizard({
   open,
@@ -41,8 +35,6 @@ export function ScanWizard({
 }: ScanWizardProps) {
   if (!open) return null;
 
-  const p = browserDetected?.provenance;
-
   return (
     <div className="scan-wizard" role="dialog" aria-modal="true" aria-labelledby="scanWizardTitle">
       <div className="scan-wizard-card hud-corners">
@@ -54,28 +46,20 @@ export function ScanWizard({
         </h3>
 
         <section className="scan-step">
-          <h4>Step 1 — Browser scan</h4>
+          <h4>Step 1 — Quick check</h4>
           <p className="muted scan-step-lede">
-            Immediate results from your browser. CPU model and physical disk space require the Windows scanner or
-            manual entry.
+            We read what your browser can see right away. For exact CPU and disk space, use the Windows scanner in step
+            2 or type your specs on the main page.
           </p>
           <ul className="scan-facts">
-            <li>{sourceTag('GPU', p?.gpu)}: {browserDetected?.gpus?.[0] || '—'}</li>
-            <li>{sourceTag('CPU', p?.cpu)}: {browserDetected?.cpu || '—'}</li>
+            <li>Graphics: {browserDetected?.gpus?.[0] || '—'}</li>
+            <li>Processor: {browserDetected?.cpu || '—'}</li>
             <li>
-              {sourceTag('RAM', p?.ram)}:{' '}
+              Memory:{' '}
               {browserDetected?.ram != null
                 ? `${browserDetected.ram}${browserDetected.ramCapped ? '+' : ''} GB`
                 : '—'}
             </li>
-            <li>
-              Browser quota (not disk): {browserDetected?.quotaEstimateGb != null ? `${browserDetected.quotaEstimateGb} GB` : '—'}
-            </li>
-            {browserDetected?.browserName ? (
-              <li>
-                Browser: {browserDetected.browserName} {browserDetected.browserVersion || ''}
-              </li>
-            ) : null}
           </ul>
         </section>
 
@@ -95,12 +79,8 @@ export function ScanWizard({
             Download FitGirl PC Scanner (.exe)
           </a>
           <p className="muted scan-smartscreen-note">
-            <strong>SmartScreen:</strong> Windows may say &quot;Unknown publisher&quot; until the build is Authenticode-signed.
-            Choose <strong>More info</strong> → <strong>Run anyway</strong>. The scanner does not install itself — it only
-            reads hardware and uploads when you confirm.
-          </p>
-          <p className="muted">
-            Rebuild the <code>.exe</code> on Windows with <code>npm run scanner:build-exe</code> after code changes.
+            If Windows SmartScreen appears, choose <strong>More info</strong> → <strong>Run anyway</strong>. The scanner
+            only reads hardware and sends data when you confirm — it does not install anything.
           </p>
         </section>
 

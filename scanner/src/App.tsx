@@ -5,9 +5,7 @@ type Phase = 'idle' | 'scanning' | 'review' | 'uploading' | 'done' | 'error';
 
 export default function App() {
   const [code, setCode] = useState('');
-  const defaultApiBase =
-    typeof window !== 'undefined' ? window.location.origin : 'https://fitgirl-game-finder.vercel.app';
-  const [apiBase, setApiBase] = useState(defaultApiBase);
+  const apiBase = 'https://fitgirl-game-finder.vercel.app';
   const [phase, setPhase] = useState<Phase>('idle');
   const [reportJson, setReportJson] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -52,11 +50,6 @@ export default function App() {
     <main className="app">
       <h1>FitGirl PC Scanner</h1>
       <p className="lede">Pair with Repack Finder, scan this PC, then confirm upload. No data leaves your machine until you send.</p>
-
-      <label>
-        Website API base
-        <input value={apiBase} onChange={(e) => setApiBase(e.target.value)} spellCheck={false} />
-      </label>
 
       <label>
         Pairing code (from website)

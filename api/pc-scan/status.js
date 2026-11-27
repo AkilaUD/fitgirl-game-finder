@@ -1,4 +1,4 @@
-import { PC_SCAN_NOT_CONFIGURED } from '../lib/pcScanConfigError.js';
+import { PC_SCAN_NOT_CONFIGURED, PC_SCAN_NOT_CONFIGURED_OPS } from '../lib/pcScanConfigError.js';
 import { getSessionStatus, pairingConfigured } from '../lib/pcScanStore.js';
 import { json, originAllowed } from '../lib/httpJson.js';
 
@@ -13,6 +13,7 @@ export default async function handler(req, res) {
     return;
   }
   if (!pairingConfigured()) {
+    console.warn(PC_SCAN_NOT_CONFIGURED_OPS);
     json(res, 503, PC_SCAN_NOT_CONFIGURED);
     return;
   }

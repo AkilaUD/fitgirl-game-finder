@@ -44,12 +44,9 @@ export function usePcScanPairing(onReport: (report: HardwareReport) => void) {
         });
         const body = await r.json().catch(() => ({}));
         if (!r.ok) {
-        const errBody = body as { error?: string; setup?: string };
-        throw pcScanHttpError(
-          r.status,
-          errBody.setup ? `${errBody.error ?? ''} ${errBody.setup}` : errBody.error,
-        );
-      }
+          const errBody = body as { error?: string };
+          throw pcScanHttpError(r.status, errBody.error);
+        }
         const report = (body as { report: HardwareReport }).report;
         onReport(report);
         sessionStorage.removeItem(SESSION_KEY);
@@ -70,11 +67,8 @@ export function usePcScanPairing(onReport: (report: HardwareReport) => void) {
       const r = await fetch(apiUrl('/api/pc-scan/pair'), { method: 'POST' });
       const body = await r.json().catch(() => ({}));
       if (!r.ok) {
-        const errBody = body as { error?: string; setup?: string };
-        throw pcScanHttpError(
-          r.status,
-          errBody.setup ? `${errBody.error ?? ''} ${errBody.setup}` : errBody.error,
-        );
+        const errBody = body as { error?: string };
+        throw pcScanHttpError(r.status, errBody.error);
       }
       const next: PairingSession = {
         sessionId: body.sessionId,
