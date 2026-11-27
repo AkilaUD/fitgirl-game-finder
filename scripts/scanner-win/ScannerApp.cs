@@ -133,19 +133,19 @@ internal sealed class ScannerForm : Form
         {
             if (!Clipboard.ContainsText())
             {
-                ShowStatus("Clipboard is empty — copy the 6-character code from the website first.", Theme.Pink);
+                ShowStatus("Clipboard is empty — copy the 6-character code from the website first.", Theme.Error);
                 return;
             }
             if (!TrySetCodeFromPaste(Clipboard.GetText()))
             {
-                ShowStatus("Could not find a 6-character pairing code in the clipboard.", Theme.Pink);
+                ShowStatus("Could not find a 6-character pairing code in the clipboard.", Theme.Error);
                 return;
             }
             await RunScanAndUploadAsync(confirmUpload: false);
         }
         catch (Exception ex)
         {
-            ShowStatus("Failed: " + ex.Message, Theme.Pink);
+            ShowStatus("Failed: " + ex.Message, Theme.Error);
         }
     }
 
@@ -176,7 +176,7 @@ internal sealed class ScannerForm : Form
         catch (Exception ex)
         {
             if (!(ex is InvalidOperationException && ex.Message.StartsWith("Upload failed:", StringComparison.Ordinal)))
-                ShowStatus("Scan failed: " + ex.Message, Theme.Pink);
+                ShowStatus("Scan failed: " + ex.Message, Theme.Error);
         }
         finally
         {
@@ -198,7 +198,7 @@ internal sealed class ScannerForm : Form
         }
         catch (Exception ex)
         {
-            ShowStatus("Scan failed: " + ex.Message, Theme.Pink);
+            ShowStatus("Scan failed: " + ex.Message, Theme.Error);
         }
         finally
         {
@@ -232,7 +232,7 @@ internal sealed class ScannerForm : Form
         catch (Exception ex)
         {
             var msg = UserFacingUploadError(ex.Message);
-            ShowStatus("Upload failed: " + msg, Theme.Pink);
+            ShowStatus("Upload failed: " + msg, Theme.Error);
             throw new InvalidOperationException("Upload failed: " + msg, ex);
         }
         finally
@@ -271,7 +271,7 @@ internal sealed class ScannerForm : Form
         var code = (_code.Text ?? "").Trim().ToUpperInvariant();
         if (code.Length != 6 || !CodePattern.IsMatch(code))
         {
-            ShowStatus("Enter the 6-character pairing code from the website.", Theme.Pink);
+            ShowStatus("Enter the 6-character pairing code from the website.", Theme.Error);
             return false;
         }
         return true;

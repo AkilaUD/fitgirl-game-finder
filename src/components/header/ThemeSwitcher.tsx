@@ -1,7 +1,7 @@
 import { SITE_THEMES, type SiteThemeId } from '../../lib/siteTheme';
 import { useSiteTheme } from '../../context/ThemeContext';
 
-const ORDER: SiteThemeId[] = ['cyber', 'neon'];
+const ORDER: SiteThemeId[] = ['neon', 'cyber'];
 
 export function ThemeSwitcher() {
   const { theme, setTheme } = useSiteTheme();

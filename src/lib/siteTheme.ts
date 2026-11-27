@@ -35,7 +35,7 @@ export function readStoredTheme(): SiteThemeId {
   } catch {
     /* ignore */
   }
-  return 'cyber';
+  return 'neon';
 }
 
 export function persistTheme(id: SiteThemeId): void {

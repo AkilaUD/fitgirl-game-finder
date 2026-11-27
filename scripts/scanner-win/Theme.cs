@@ -3,16 +3,23 @@ using System.Windows.Forms;
 
 internal static class Theme
 {
-    public static readonly Color Bg = Color.FromArgb(11, 8, 16);
-    public static readonly Color Panel = Color.FromArgb(13, 10, 18);
-    public static readonly Color Line = Color.FromArgb(51, 32, 63);
-    public static readonly Color Text = Color.FromArgb(244, 237, 247);
-    public static readonly Color Muted = Color.FromArgb(150, 138, 160);
-    public static readonly Color Pink = Color.FromArgb(247, 37, 133);
-    public static readonly Color Pink2 = Color.FromArgb(255, 92, 162);
-    public static readonly Color Cyan = Color.FromArgb(0, 255, 234);
-    public static readonly Color DarkBtn = Color.FromArgb(18, 14, 26);
-    public static readonly Color Success = Color.FromArgb(120, 220, 160);
+    /* Matches site default theme (Neon) — src/styles/themes.css */
+    public static readonly Color Bg = Color.FromArgb(14, 17, 17);
+    public static readonly Color Panel = Color.FromArgb(26, 29, 35);
+    public static readonly Color Line = Color.FromArgb(42, 47, 56);
+    public static readonly Color Text = Color.FromArgb(245, 247, 250);
+    public static readonly Color Muted = Color.FromArgb(154, 163, 173);
+    public static readonly Color Accent = Color.FromArgb(124, 252, 0);
+    public static readonly Color Accent2 = Color.FromArgb(102, 255, 0);
+    public static readonly Color Glow = Color.FromArgb(184, 255, 92);
+    public static readonly Color DarkBtn = Color.FromArgb(18, 21, 26);
+    public static readonly Color Success = Color.FromArgb(140, 235, 120);
+    public static readonly Color Error = Color.FromArgb(255, 95, 130);
+
+    /* Aliases for control code */
+    public static readonly Color Pink = Accent;
+    public static readonly Color Pink2 = Accent2;
+    public static readonly Color Cyan = Glow;
 
     public static void ApplyForm(Form form)
     {
@@ -32,7 +39,7 @@ internal static class Theme
             Text = text,
             FlatStyle = FlatStyle.Flat,
             BackColor = Pink,
-            ForeColor = Color.FromArgb(10, 5, 16),
+            ForeColor = Bg,
             Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
             Cursor = Cursors.Hand,
             Height = 36,

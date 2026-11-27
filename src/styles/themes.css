@@ -1,34 +1,5 @@
-/* Default: Cyber (pink / cyan) */
+/* Default: Neon poster — charcoal + lime */
 :root,
-[data-theme='cyber'] {
-  --black: #070509;
-  --bg: #0b0810;
-  --panel: #0d0a12;
-  --panel-2: #120e1a;
-  --line: #211829;
-  --line-2: #33203f;
-  --text: #f4edf7;
-  --muted: #968aa0;
-  --dim: #6c6176;
-  --pink: #f72585;
-  --pink-2: #ff5ca2;
-  --magenta: #b5179e;
-  --cyan: #00ffea;
-  --ice: #7df9ff;
-  --accent-rgb: 247, 37, 133;
-  --glow-rgb: 0, 255, 234;
-  --top-bg: rgba(7, 5, 9, 0.94);
-  --top-border: #2a1030;
-  --divider: #170f1c;
-  --input-surface: #0b0810;
-  --selection-fg: #0a0510;
-  --radius: 6px;
-  --display: 'Bahnschrift SemiBold Condensed', 'Bahnschrift', 'DIN Condensed', 'Franklin Gothic Medium', 'Segoe UI',
-    system-ui, sans-serif;
-  --mono: 'Cascadia Mono', 'Consolas', ui-monospace, 'SF Mono', monospace;
-}
-
-/* Neon poster — charcoal + lime (reference artwork) */
 [data-theme='neon'] {
   --black: #0e1111;
   --bg: #0e1111;
@@ -51,4 +22,33 @@
   --divider: #1c2118;
   --input-surface: #12151a;
   --selection-fg: #0e1111;
+  --radius: 6px;
+  --display: 'Bahnschrift SemiBold Condensed', 'Bahnschrift', 'DIN Condensed', 'Franklin Gothic Medium', 'Segoe UI',
+    system-ui, sans-serif;
+  --mono: 'Cascadia Mono', 'Consolas', ui-monospace, 'SF Mono', monospace;
+}
+
+/* Legacy Cyber (pink / cyan) */
+[data-theme='cyber'] {
+  --black: #070509;
+  --bg: #0b0810;
+  --panel: #0d0a12;
+  --panel-2: #120e1a;
+  --line: #211829;
+  --line-2: #33203f;
+  --text: #f4edf7;
+  --muted: #968aa0;
+  --dim: #6c6176;
+  --pink: #f72585;
+  --pink-2: #ff5ca2;
+  --magenta: #b5179e;
+  --cyan: #00ffea;
+  --ice: #7df9ff;
+  --accent-rgb: 247, 37, 133;
+  --glow-rgb: 0, 255, 234;
+  --top-bg: rgba(7, 5, 9, 0.94);
+  --top-border: #2a1030;
+  --divider: #170f1c;
+  --input-surface: #0b0810;
+  --selection-fg: #0a0510;
 }
