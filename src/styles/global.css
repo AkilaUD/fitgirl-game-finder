@@ -385,6 +385,9 @@ code{background:#08060C;border:1px solid rgba(125,249,255,.24);border-radius:3px
 .support-box{margin-top:28px;padding:16px 16px 18px;border:1px solid #2E1330;border-left:3px solid var(--pink);border-radius:4px;background:var(--panel)}
 .support-label{margin:0 0 8px;font-family:var(--display);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--pink);font-weight:700}
 .support-text{margin:0 0 14px;font-size:12.5px;line-height:1.6;color:var(--muted);max-width:62ch}
+.paypal-donate{display:inline-block;margin:0}
+.paypal-donate-img{display:block;max-width:100%;height:auto;cursor:pointer}
+.paypal-donate-pixel{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 .btn.soon{color:var(--dim);border-color:#2A2233;cursor:not-allowed}
 .btn.soon:hover{color:var(--dim);border-color:#2A2233;background:transparent}
 @media (max-width:640px){

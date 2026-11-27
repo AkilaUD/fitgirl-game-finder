@@ -12,7 +12,12 @@ function redisCredentials() {
   return url && token ? { url, token } : null;
 }
 
+const STORAGE_ENV_PREFIXES = ['UPSTASH', 'KV_', 'BLOB_', 'REDIS'];
+
 export function pairingStorageDebug() {
+  const storageEnvKeys = Object.keys(process.env).filter((k) =>
+    STORAGE_ENV_PREFIXES.some((p) => k.startsWith(p) || k.includes('REDIS')),
+  );
   return {
     kind: storageKind(),
     hasUpstashUrl: Boolean((process.env.UPSTASH_REDIS_REST_URL || '').trim()),
@@ -21,6 +26,7 @@ export function pairingStorageDebug() {
     hasKvToken: Boolean((process.env.KV_REST_API_TOKEN || '').trim()),
     hasBlobToken: Boolean(blobToken()),
     vercelEnv: process.env.VERCEL_ENV || null,
+    storageEnvKeys,
   };
 }
 
