@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { VfxProvider } from './context/VfxContext';
 import { GameShell } from './components/layout/GameShell';
@@ -17,6 +18,7 @@ export default function App() {
           </Routes>
         </GameShell>
       </BrowserRouter>
+      <Analytics />
     </VfxProvider>
   );
 }

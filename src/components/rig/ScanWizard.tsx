@@ -2,6 +2,7 @@ import type { DetectedInfo } from '../../lib/gameTypes';
 import type { HardwareReportVolume } from '../../lib/hardwareReport';
 import type { PairingPhase, PairingSession } from '../../hooks/usePcScanPairing';
 import { resolveScannerDownload, SCANNER_DOWNLOAD_FILENAME } from '../../lib/scannerDownload';
+import { recordScannerDownloadClick } from '../../lib/siteStats';
 
 const scannerDownload = resolveScannerDownload();
 
@@ -72,6 +73,7 @@ export function ScanWizard({
             className="btn primary"
             href={scannerDownload.href}
             download={scannerDownload.directDownload ? SCANNER_DOWNLOAD_FILENAME : undefined}
+            onClick={() => recordScannerDownloadClick()}
             {...(scannerDownload.directDownload
               ? {}
               : { target: '_blank', rel: 'noopener noreferrer' })}

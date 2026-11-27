@@ -1,6 +1,7 @@
 import { dispatchPcScan } from './pcScanServe.mjs';
+import { dispatchStats } from './statsServe.mjs';
 
-/** Serve /api/pc-scan/* inside Vite dev without requiring serve.mjs on :5180 */
+/** Serve /api/pc-scan/* and /api/stats* inside Vite dev without requiring serve.mjs on :5180 */
 export function vitePcScanPlugin(env) {
   return {
     name: 'vite-pc-scan-api',
@@ -11,12 +12,15 @@ export function vitePcScanPlugin(env) {
 
       server.middlewares.use((req, res, next) => {
         const pathname = decodeURIComponent((req.url || '').split('?')[0]);
-        if (!pathname.startsWith('/api/pc-scan/')) {
+        const isPcScan = pathname.startsWith('/api/pc-scan/');
+        const isStats = pathname === '/api/stats' || pathname === '/api/stats/record';
+        if (!isPcScan && !isStats) {
           next();
           return;
         }
 
-        void dispatchPcScan(req, res, pathname)
+        const dispatch = isPcScan ? dispatchPcScan : dispatchStats;
+        void dispatch(req, res, pathname)
           .then((handled) => {
             if (!handled && !res.writableEnded) {
               res.statusCode = 404;

@@ -2,9 +2,11 @@ import { PC_SCAN_NOT_CONFIGURED, PC_SCAN_NOT_CONFIGURED_OPS } from '../lib/pcSca
 import { createPairingSession, pairingConfigured } from '../lib/pcScanStore.js';
 import { clientIp, json, originAllowed, rateLimited } from '../lib/httpJson.js';
 import { sendScannerZip } from '../lib/scannerZip.js';
+import { recordPairingCreated, recordScannerServed } from '../lib/statsStore.js';
 
 export default async function handler(req, res) {
   if (req.method === 'GET' || req.method === 'HEAD') {
+    if (req.method === 'GET') void recordScannerServed();
     sendScannerZip(req, res);
     return;
   }
@@ -33,6 +35,7 @@ export default async function handler(req, res) {
     json(res, 503, { error: result.error });
     return;
   }
+  void recordPairingCreated();
   json(res, 200, {
     sessionId: result.sessionId,
     pairingCode: result.pairingCode,

@@ -1,9 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ContactForm } from '../contact/ContactForm';
+import { usePublicSiteStats } from '../../hooks/usePublicSiteStats';
+import { formatStatCount } from '../../lib/siteStats';
 
 export function Footer() {
   const contactRef = useRef<HTMLDetailsElement>(null);
+  const stats = usePublicSiteStats();
 
   useEffect(() => {
     const openFromHash = () => {
@@ -75,6 +78,19 @@ export function Footer() {
 
         <div className="foot-bar">
           <span>Repack Finder · fan-made</span>
+          {stats ? (
+            <span className="foot-stats" aria-label="Public usage counters">
+              <span className="foot-stat">
+                <b>{formatStatCount(stats.visits)}</b> visits
+              </span>
+              <span className="foot-stat">
+                <b>{formatStatCount(stats.pairings)}</b> PC pairings
+              </span>
+              <span className="foot-stat">
+                <b>{formatStatCount(stats.scannerDownloads)}</b> scanner saves
+              </span>
+            </span>
+          ) : null}
           <span className="foot-credit">
             Built by <b>Akila Udara</b>
           </span>
