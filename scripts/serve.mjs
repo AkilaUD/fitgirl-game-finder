@@ -35,7 +35,7 @@ async function loadEnv() {
 await loadEnv();
 
 const CONTACT_TO = process.env.CONTACT_TO || 'nexorasoftwarestudio@gmail.com';
-const CONTACT_FROM = process.env.CONTACT_FROM || 'Repack Finder <onboarding@resend.dev>';
+const CONTACT_FROM = process.env.CONTACT_FROM || 'Game Finder <onboarding@resend.dev>';
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon' };
 
 function run(cmd, args) {
@@ -157,7 +157,7 @@ async function sendContactMail({ name, email, message }) {
       from: CONTACT_FROM,
       to: [CONTACT_TO],
       reply_to: email,
-      subject: `Repack Finder — message from ${name}`,
+      subject: `Game Finder — message from ${name}`,
       text: `${message}\n\n—\n${name} <${email}>`,
       html: `<p style="white-space:pre-line">${esc(message)}</p><hr><p>${esc(name)} &lt;${esc(email)}&gt;</p>`,
     }),

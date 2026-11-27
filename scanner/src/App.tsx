@@ -48,8 +48,8 @@ export default function App() {
 
   return (
     <main className="app">
-      <h1>FitGirl PC Scanner</h1>
-      <p className="lede">Pair with Repack Finder, scan this PC, then confirm upload. No data leaves your machine until you send.</p>
+      <h1>Game Finder PC Scanner</h1>
+      <p className="lede">Pair with Game Finder, scan this PC, then confirm upload. No data leaves your machine until you send.</p>
 
       <label>
         Pairing code (from website)

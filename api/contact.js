@@ -57,7 +57,7 @@ async function sendContactMail({ name, email, message }) {
     console.warn('RESEND_API_KEY is not set on this deployment.');
     return { status: 503, error: 'Email is not available right now. Please try again later.' };
   }
-  const from = process.env.CONTACT_FROM || 'Repack Finder <onboarding@resend.dev>';
+  const from = process.env.CONTACT_FROM || 'Game Finder <onboarding@resend.dev>';
   const to = process.env.CONTACT_TO || 'nexorasoftwarestudio@gmail.com';
   const res = await fetch(RESEND_URL, {
     method: 'POST',
@@ -66,7 +66,7 @@ async function sendContactMail({ name, email, message }) {
       from,
       to: [to],
       reply_to: email,
-      subject: `Repack Finder — message from ${name}`,
+      subject: `Game Finder — message from ${name}`,
       text: `${message}\n\n—\n${name} <${email}>`,
       html: `<p style="white-space:pre-line">${esc(message)}</p><hr><p>${esc(name)} &lt;${esc(email)}&gt;</p>`,
     }),

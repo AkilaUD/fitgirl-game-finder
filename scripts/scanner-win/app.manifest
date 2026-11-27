@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
   <assemblyIdentity version="1.1.0.0" name="FitGirl.RepackFinder.PcScanner" type="win32"/>
-  <description>FitGirl PC Scanner — Repack Finder hardware pairing</description>
+  <description>Game Finder PC Scanner — hardware pairing</description>
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
     <security>
       <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">

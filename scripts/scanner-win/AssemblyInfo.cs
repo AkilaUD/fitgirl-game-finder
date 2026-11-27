@@ -1,11 +1,11 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("FitGirl PC Scanner")]
-[assembly: AssemblyDescription("Windows hardware scanner for Repack Finder — pairs with fitgirl-game-finder.vercel.app")]
-[assembly: AssemblyCompany("Repack Finder")]
-[assembly: AssemblyProduct("FitGirl PC Scanner")]
-[assembly: AssemblyCopyright("Copyright © Repack Finder")]
+[assembly: AssemblyTitle("Game Finder PC Scanner")]
+[assembly: AssemblyDescription("Windows hardware scanner for Game Finder — pairs with fitgirl-game-finder.vercel.app")]
+[assembly: AssemblyCompany("Game Finder")]
+[assembly: AssemblyProduct("Game Finder PC Scanner")]
+[assembly: AssemblyCopyright("Copyright © Game Finder")]
 [assembly: AssemblyVersion("1.1.0.0")]
 [assembly: AssemblyFileVersion("1.1.0.0")]
 [assembly: ComVisible(false)]

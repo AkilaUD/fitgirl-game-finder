@@ -17,7 +17,7 @@ export function NotFoundPage() {
         <p className="page-lede">That URL doesn&apos;t match anything here. Head back to the repack list and try again.</p>
         <div className="page-actions">
           <Link className="btn primary" to="/">
-            Back to Repack Finder
+            Back to Game Finder
           </Link>
         </div>
       </main>

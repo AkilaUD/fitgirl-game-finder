@@ -37,7 +37,7 @@ internal sealed class ScannerForm : Form
 
     public ScannerForm()
     {
-        Text = "FitGirl PC Scanner";
+        Text = "Game Finder PC Scanner";
         ClientSize = new Size(440, 430);
         Theme.ApplyForm(this);
 
@@ -58,7 +58,7 @@ internal sealed class ScannerForm : Form
         hud.Controls.Add(grid);
 
         int row = 0;
-        grid.Controls.Add(Theme.MakeHeading("REPACK FINDER · PC SCAN"), 0, row++);
+        grid.Controls.Add(Theme.MakeHeading("GAME FINDER · PC SCAN"), 0, row++);
         grid.Controls.Add(Theme.MakeMuted(
             "Paste the pairing code from the website to scan and send in one step, or enter it manually."), 0, row++);
 
@@ -226,7 +226,7 @@ internal sealed class ScannerForm : Form
             var code = _code.Text.Trim().ToUpperInvariant();
             await Task.Run(() => Upload(code, _reportJson));
             ShowStatus("Done — return to the browser to finish.", Theme.Success);
-            MessageBox.Show("Report sent. Switch back to Repack Finder in your browser.", "FitGirl PC Scanner",
+            MessageBox.Show("Report sent. Switch back to Game Finder in your browser.", "Game Finder PC Scanner",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex)

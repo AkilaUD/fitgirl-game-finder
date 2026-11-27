@@ -77,7 +77,7 @@ export function Footer() {
         </details>
 
         <div className="foot-bar">
-          <span>Repack Finder · fan-made</span>
+          <span>Game Finder · fan-made</span>
           {stats ? (
             <span className="foot-stats" aria-label="Public usage counters">
               <span className="foot-stat">

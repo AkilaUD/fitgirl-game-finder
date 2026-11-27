@@ -9,7 +9,7 @@ The site is a static SPA plus serverless APIs. Browsers cannot read the host CPU
 | Browser | No | Capped estimate (`deviceMemory`) | WebGPU/WebGL name | No (quota is not disk) |
 | Local `serve.mjs` | Yes | Yes | Yes | All logical drives |
 | DxDiag paste | Yes | Yes | Yes | All drives in report |
-| FitGirl PC Scanner | Yes | Yes | Yes | Per-volume |
+| Game Finder PC Scanner | Yes | Yes | Yes | Per-volume |
 
 ## Architecture
 
@@ -59,7 +59,7 @@ npm run scanner:build
 
 That runs Tauri and copies the installer to [`public/downloads/`](../public/downloads/). Commit `FitGirlPcScanner-setup.exe` so Vercel ships it as a **direct download** from your domain (no GitHub Releases required).
 
-### Windows scanner `.exe` (Repack Finder theme)
+### Windows scanner `.exe` (Game Finder theme)
 
 Built with `npm run scanner:build-exe` on Windows (`scripts/scanner-win/` — WinForms UI matching the site: dark panel, neon pink/cyan). The download is a single portable app (no installer); WMI collection runs in-process.
 

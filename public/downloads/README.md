@@ -1,4 +1,4 @@
-# FitGirl PC Scanner installer
+# Game Finder PC Scanner installer
 
 Default download: **`FitGirlPcScanner-setup.exe`** — one Windows executable (PowerShell payload embedded).
 

@@ -1,4 +1,4 @@
-# Repack Finder
+# Game Finder
 
 Filters FitGirl repacks by download size and release date, and tells you which ones your PC meets the
 minimum or recommended system requirements for. The UI is a **Vite + React + TypeScript** SPA with a
@@ -36,7 +36,7 @@ the repo root). Deploy `dist/` to Vercel with `vercel.json`; `api/contact.js` st
 See **[docs/HARDWARE_SCAN.md](docs/HARDWARE_SCAN.md)** for pairing, Upstash Redis env vars, and the Windows scanner.
 
 - **Browser scan** — immediate GPU / thread / RAM estimates in the scan wizard.
-- **FitGirl PC Scanner** (Tauri, [`scanner/`](scanner/)) — pairing code upload for full CPU, RAM, GPU, and disk volumes on Vercel.
+- **Game Finder PC Scanner** (Tauri, [`scanner/`](scanner/)) — pairing code upload for full CPU, RAM, GPU, and disk volumes on Vercel.
 - **With the server running** the scan is exact: it reads the CPU model, total RAM, the free space on
   **every drive** (added together for the storage check) and the installed GPU names from this machine.
   It still uses the browser for the display and the GPU as a cross-check.
@@ -77,7 +77,7 @@ Settings come from `.env` (git-ignored; `.env.example` is the template):
 ```
 RESEND_API_KEY=re_...
 CONTACT_TO=nexorasoftwarestudio@gmail.com
-CONTACT_FROM=Repack Finder <onboarding@resend.dev>
+CONTACT_FROM=Game Finder <onboarding@resend.dev>
 ```
 
 `onboarding@resend.dev` is Resend's test sender and only delivers to the Resend account owner's own
@@ -97,7 +97,7 @@ only sees the Vercel environment:
 | --- | --- | --- |
 | `RESEND_API_KEY` | yes | your Resend key (`re_...`) |
 | `CONTACT_TO` | no | where messages go, defaults to `nexorasoftwarestudio@gmail.com` |
-| `CONTACT_FROM` | no | defaults to `Repack Finder <onboarding@resend.dev>` |
+| `CONTACT_FROM` | no | defaults to `Game Finder <onboarding@resend.dev>` |
 
 Until a domain is verified in Resend, keep the default sender and make sure `CONTACT_TO` is the Resend
 account owner's own address. The 5-messages-per-10-minutes guard lives in each function instance, so on

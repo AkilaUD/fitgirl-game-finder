@@ -13,7 +13,7 @@ export function ThankYouPage() {
         <p className="page-kicker">Support</p>
         <h2 className="page-title thanks-title">Thank you</h2>
         <p className="page-lede">
-          Repack Finder is a free, fan-made tool: it filters games by download size and system requirements, and scans
+          Game Finder is a free, fan-made tool: it filters games by download size and system requirements, and scans
           your own PC to show what should actually run. No accounts, no ads, nothing sent anywhere.
         </p>
         <p className="page-lede">

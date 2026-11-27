@@ -1,6 +1,6 @@
-# FitGirl PC Scanner
+# Game Finder PC Scanner
 
-Windows desktop companion for [Repack Finder](../README.md). Collects hardware via WMI/CIM and uploads a signed-off report to the website pairing API.
+Windows desktop companion for [Game Finder](../README.md). Collects hardware via WMI/CIM and uploads a signed-off report to the website pairing API.
 
 ## Prerequisites
 

@@ -206,7 +206,7 @@ export function RigPanel({ rig, games, gpuSuggestions, cpuSuggestions, onScan, f
         ) : null}
       </div>
       <p className="fineprint">
-        Quick scan runs in this tab. For exact CPU, RAM, GPU, and disk space, use <strong>FitGirl PC Scanner</strong>{' '}
+        Quick scan runs in this tab. For exact CPU, RAM, GPU, and disk space, use <strong>Game Finder PC Scanner</strong>{' '}
         (pairing code in the scan window) or paste a DxDiag report below. Hardware is only sent to this site when you
         confirm it in the scanner app.
       </p>
@@ -234,7 +234,7 @@ export function RigPanel({ rig, games, gpuSuggestions, cpuSuggestions, onScan, f
 function buildDetected(rig: RigApi) {
   const d = rig.detected || {};
   const bits: string[] = [];
-  if (d.source === 'desktop') bits.push('<span class="tag">FitGirl PC Scanner</span>');
+  if (d.source === 'desktop') bits.push('<span class="tag">Game Finder PC Scanner</span>');
   if (d.source === 'local-server') bits.push('<span class="tag">read from this PC</span>');
   if (rig.rig.installMount) bits.push(`<span>Install drive <b>${esc(rig.rig.installMount)}</b></span>`);
   if (d.cpu) bits.push(`<span>CPU <b>${esc(String(d.cpu).replace(/\s+/g, ' '))}</b></span>`);
@@ -251,7 +251,7 @@ function buildDetected(rig: RigApi) {
   if (d.source === 'dxdiag') bits.push('<span class="tag">from your DxDiag</span>');
   if (d.source === 'browser') {
     bits.push(
-      '<span>Quick scan — for exact CPU and free disk space, use FitGirl PC Scanner or paste a DxDiag report below.</span>',
+      '<span>Quick scan — for exact CPU and free disk space, use Game Finder PC Scanner or paste a DxDiag report below.</span>',
     );
   }
   return bits.join('');

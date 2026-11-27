@@ -3,7 +3,7 @@
 
 dxdiag is the only Windows tool that reports the CPU model, installed RAM, GPU and
 physical drives together without extra packages, so this script runs it into a temp
-file, parses the fields Repack Finder needs, and prints them as JSON.
+file, parses the fields Game Finder needs, and prints them as JSON.
 
     python scripts/dxdiag.py            # JSON
     python scripts/dxdiag.py --keep     # also keep the raw DxDiag.txt path

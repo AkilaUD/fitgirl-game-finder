@@ -67,7 +67,7 @@ export function ScanWizard({
         <section className="scan-step">
           <h4>Step 2 — Full hardware (Windows)</h4>
           <p className="muted scan-step-lede">
-            Download and run <strong>FitGirl PC Scanner</strong>, copy the pairing code below, then use{' '}
+            Download and run <strong>Game Finder PC Scanner</strong>, copy the pairing code below, then use{' '}
             <strong>Paste & run</strong> in the app to scan and send automatically.
           </p>
           <a
@@ -79,7 +79,7 @@ export function ScanWizard({
               ? {}
               : { target: '_blank', rel: 'noopener noreferrer' })}
           >
-            Download FitGirl PC Scanner (.exe)
+            Download Game Finder PC Scanner (.exe)
           </a>
           <p className="muted scan-smartscreen-note">
             If Windows SmartScreen appears, choose <strong>More info</strong> → <strong>Run anyway</strong>. The scanner

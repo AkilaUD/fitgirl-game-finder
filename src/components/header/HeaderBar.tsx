@@ -16,10 +16,10 @@ export function HeaderBar({ query, onQuery, onScan, scanning }: HeaderBarProps) 
   return (
     <header className="top">
       <div className="brand">
-        <Link className="mark" to="/" aria-label="Repack Finder home" />
+        <Link className="mark" to="/" aria-label="Game Finder home" />
         <div>
           <h1>
-            <GlitchTitle>Repack Finder</GlitchTitle>
+            <GlitchTitle>Game Finder</GlitchTitle>
           </h1>
           <p>FitGirl repacks, filtered by size, date and what your PC can actually run.</p>
         </div>
