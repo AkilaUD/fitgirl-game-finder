@@ -16,7 +16,7 @@ Tauri and the themed `.exe` are **built on Windows** only (`npm run scanner:buil
 | Piece | On Vercel |
 |-------|-----------|
 | Repack Finder SPA | `dist/` from `npm run build` |
-| Pairing + contact | `api/**/*.js` serverless |
+| Pairing + contact | **3** serverless functions (`api/contact.js`, `api/pc-scan.js`, `api/stats.js`) — Hobby plan limit |
 | Scanner `.exe` | `public/downloads/` (and `GET /api/pc-scan/pair`) |
 
 ## Env vars

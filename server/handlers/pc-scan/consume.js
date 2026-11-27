@@ -1,6 +1,6 @@
-import { PC_SCAN_NOT_CONFIGURED, PC_SCAN_NOT_CONFIGURED_OPS } from '../lib/pcScanConfigError.js';
-import { consumeSession, pairingConfigured } from '../lib/pcScanStore.js';
-import { clientIp, json, originAllowed, readJson, rateLimited } from '../lib/httpJson.js';
+import { PC_SCAN_NOT_CONFIGURED, PC_SCAN_NOT_CONFIGURED_OPS } from '../../lib/pcScanConfigError.js';
+import { consumeSession, pairingConfigured } from '../../lib/pcScanStore.js';
+import { clientIp, json, originAllowed, readJson, rateLimited } from '../../lib/httpJson.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {

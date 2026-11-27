@@ -14,7 +14,7 @@ function rateLimited(ip) {
   return false;
 }
 
-export default async function handler(req, res) {
+export async function handleStatsRecord(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     json(res, 405, { error: 'Use POST.' });

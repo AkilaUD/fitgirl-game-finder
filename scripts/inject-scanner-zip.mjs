@@ -3,8 +3,8 @@ import { join } from 'node:path';
 
 const root = process.cwd();
 const exePath = join(root, 'public', 'downloads', 'FitGirlPcScanner-setup.exe');
-const tplPath = join(root, 'api', 'lib', 'scannerZip.template.js');
-const outPath = join(root, 'api', 'lib', 'scannerZip.js');
+const tplPath = join(root, 'server', 'lib', 'scannerZip.template.js');
+const outPath = join(root, 'server', 'lib', 'scannerZip.js');
 
 const [exe, tpl] = await Promise.all([readFile(exePath), readFile(tplPath, 'utf8')]);
 const b64 = exe.toString('base64');

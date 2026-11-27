@@ -1,8 +1,8 @@
-import { PC_SCAN_NOT_CONFIGURED, PC_SCAN_NOT_CONFIGURED_OPS } from '../lib/pcScanConfigError.js';
-import { createPairingSession, pairingConfigured } from '../lib/pcScanStore.js';
-import { clientIp, json, originAllowed, rateLimited } from '../lib/httpJson.js';
-import { sendScannerZip } from '../lib/scannerZip.js';
-import { recordPairingCreated, recordScannerServed } from '../lib/statsStore.js';
+import { PC_SCAN_NOT_CONFIGURED, PC_SCAN_NOT_CONFIGURED_OPS } from '../../lib/pcScanConfigError.js';
+import { createPairingSession, pairingConfigured } from '../../lib/pcScanStore.js';
+import { clientIp, json, originAllowed, rateLimited } from '../../lib/httpJson.js';
+import { sendScannerZip } from '../../lib/scannerZip.js';
+import { recordPairingCreated, recordScannerServed } from '../../lib/statsStore.js';
 
 export default async function handler(req, res) {
   if (req.method === 'GET' || req.method === 'HEAD') {

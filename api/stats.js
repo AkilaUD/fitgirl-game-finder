@@ -1,8 +1,19 @@
-import { getPublicStats, statsConfigured } from './lib/statsStore.js';
-import { json } from './lib/httpJson.js';
+import { getPublicStats, statsConfigured } from '../server/lib/statsStore.js';
+import { json } from '../server/lib/httpJson.js';
+import { handleStatsRecord } from '../server/handlers/statsRecord.js';
 
-/** Public usage counters (requires Upstash Redis — same as pairing). */
+function isRecordRoute(req) {
+  if (req.query?.record === '1' || req.query?._record === '1') return true;
+  const raw = String(req.url || '');
+  return raw.includes('/stats/record');
+}
+
+/** GET /api/stats · POST /api/stats/record (rewrite in vercel.json) — one function. */
 export default async function handler(req, res) {
+  if (isRecordRoute(req)) {
+    await handleStatsRecord(req, res);
+    return;
+  }
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
     json(res, 405, { error: 'Use GET.' });

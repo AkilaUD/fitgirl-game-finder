@@ -5,9 +5,9 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "functions": {
-    "api/**/*.js": {
-      "maxDuration": 15
-    }
+    "api/contact.js": { "maxDuration": 15 },
+    "api/stats.js": { "maxDuration": 15 },
+    "api/pc-scan.js": { "maxDuration": 15 }
   },
   "headers": [
     {
@@ -20,6 +20,14 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/api/pc-scan/:action",
+      "destination": "/api/pc-scan?action=:action"
+    },
+    {
+      "source": "/api/stats/record",
+      "destination": "/api/stats?record=1"
+    },
     {
       "source": "/((?!api/).*)",
       "destination": "/index.html"

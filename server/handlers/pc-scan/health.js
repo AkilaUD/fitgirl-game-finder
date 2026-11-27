@@ -1,5 +1,5 @@
-import { pairingConfigured, pairingStorageDebug } from '../lib/pcScanStore.js';
-import { json } from '../lib/httpJson.js';
+import { pairingConfigured, pairingStorageDebug } from '../../lib/pcScanStore.js';
+import { json } from '../../lib/httpJson.js';
 
 /** Safe diagnostics for pairing storage (no secrets). */
 export default async function handler(req, res) {
