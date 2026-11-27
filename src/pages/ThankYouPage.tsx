@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { HeaderBar } from '../components/header/HeaderBar';
+import { PayPalDonateForm } from '../components/support/PayPalDonateForm';
 import { useRig } from '../hooks/useRig';
 
 export function ThankYouPage() {
@@ -23,12 +24,10 @@ export function ThankYouPage() {
         <div className="support-box">
           <p className="support-label">Donation</p>
           <p className="support-text">
-            The PayPal link isn&apos;t hooked up yet. It will live right here, and this page is where it will send you
-            afterwards. Until then, the best support is passing the tool on to someone who needs it.
+            PayPal opens in a new tab. After donating you can come back here or jump straight to the repacks — thanks for
+            supporting the project.
           </p>
-          <span className="btn ghost soon" aria-disabled="true">
-            Buy me a coffee — coming soon
-          </span>
+          <PayPalDonateForm />
         </div>
 
         <p className="page-lede">
