@@ -1,6 +1,11 @@
 import { useState, type FormEvent } from 'react';
 
-export function ContactForm() {
+interface ContactFormProps {
+  /** Compact layout for footer panel — no duplicate heading. */
+  embedded?: boolean;
+}
+
+export function ContactForm({ embedded = false }: ContactFormProps) {
   const [status, setStatus] = useState<{ cls: string; text: string }>({ cls: '', text: '' });
   const [sending, setSending] = useState(false);
 
@@ -24,15 +29,15 @@ export function ContactForm() {
         body: JSON.stringify({ name, email, message }),
       });
       const body = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error((body as { error?: string }).error || `Sending failed (HTTP ${r.status}).`);
+      if (!r.ok) throw new Error((body as { error?: string }).error || 'Sending failed. Please try again later.');
       form.reset();
       setStatus({ cls: 'ok', text: 'Message sent — thanks! I will reply to the address you left.' });
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Sending failed.';
       setStatus({
         cls: 'err',
-        text: /^Failed to fetch/.test(msg)
-          ? 'The mail endpoint is not reachable right now. Please email nexorasoftwarestudio@gmail.com directly.'
+        text: /^Failed to fetch/i.test(msg)
+          ? 'The message service is not reachable right now. Please try again later.'
           : msg,
       });
     } finally {
@@ -41,11 +46,15 @@ export function ContactForm() {
   };
 
   return (
-    <section className="contact" id="contact">
-      <h2 className="contact-head">Send a message</h2>
-      <p className="contact-lede">
-        Questions, bug reports and messages go straight to my inbox. Add your email if you would like a reply.
-      </p>
+    <section className={embedded ? 'contact contact--embedded' : 'contact'} id={embedded ? undefined : 'contact'}>
+      {!embedded ? (
+        <>
+          <h2 className="contact-head">Send a message</h2>
+          <p className="contact-lede">
+            Questions, bug reports and messages go straight to my inbox. Add your email if you would like a reply.
+          </p>
+        </>
+      ) : null}
       <form className="contact-form" noValidate onSubmit={onSubmit}>
         <div className="contact-row">
           <label className="field">
@@ -59,13 +68,13 @@ export function ContactForm() {
         </div>
         <label className="field">
           <span>Message</span>
-          <textarea name="message" rows={4} required maxLength={4000} />
+          <textarea name="message" rows={embedded ? 3 : 4} required maxLength={4000} />
         </label>
         <div className="contact-actions">
           <button className="btn primary" type="submit" disabled={sending}>
             {sending ? 'Sending…' : 'Send message'}
           </button>
-          <span className="contact-note">Sent by email — no account needed.</span>
+          <span className="contact-note">No account needed — reply goes to your email.</span>
         </div>
         <p className={`contact-status ${status.cls}`} role="status" aria-live="polite">
           {status.text}
