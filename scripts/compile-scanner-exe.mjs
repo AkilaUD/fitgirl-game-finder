@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -18,6 +19,26 @@ const csc = join(
   'v4.0.30319',
   'csc.exe',
 );
+
+function findSignTool() {
+  const kitsRoot = join(process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)', 'Windows Kits', '10', 'bin');
+  if (!existsSync(kitsRoot)) return null;
+  const versions = readdirSync(kitsRoot).filter((d) => /^\d/.test(d)).sort().reverse();
+  for (const ver of versions) {
+    const p = join(kitsRoot, ver, 'x64', 'signtool.exe');
+    if (existsSync(p)) return p;
+  }
+  return null;
+}
+
+function resolvePfx() {
+  if (process.env.SCANNER_CODESIGN_PFX?.trim()) {
+    return process.env.SCANNER_CODESIGN_PFX.trim();
+  }
+  const desktop = join(homedir(), 'Desktop', 'Certificate.pfx');
+  if (existsSync(desktop)) return desktop;
+  return null;
+}
 
 if (!existsSync(csc)) {
   console.error('csc.exe not found — build the scanner .exe on Windows with .NET Framework 4.x.');
@@ -39,41 +60,52 @@ const refs = [
 mkdirSync(outDir, { recursive: true });
 mkdirSync(apiData, { recursive: true });
 
+const fw = join(process.env.WINDIR || 'C:\\Windows', 'Microsoft.NET', 'Framework64', 'v4.0.30319');
 const args = [
   '/nologo',
   '/target:winexe',
   '/platform:anycpu',
   '/optimize+',
   `/win32manifest:${manifest}`,
-  ...refs.map((r) => `/reference:${join(process.env.WINDIR || 'C:\\Windows', 'Microsoft.NET', 'Framework64', 'v4.0.30319', r)}`),
+  ...refs.map((r) => `/reference:${join(fw, r)}`),
   `/out:${outExe}`,
   ...sources,
 ];
 
 execFileSync(csc, args, { stdio: 'inherit' });
 
-const pfx = process.env.SCANNER_CODESIGN_PFX?.trim();
+const pfx = resolvePfx();
 const pfxPass = process.env.SCANNER_CODESIGN_PASSWORD ?? '';
+const signtool = findSignTool();
+
 if (pfx && existsSync(pfx)) {
-  const signtool = join(
-    process.env.ProgramFiles(x86) || 'C:\\Program Files (x86)',
-    'Windows Kits',
-    '10',
-    'bin',
-    '10.0.22621.0',
-    'x64',
-    'signtool.exe',
-  );
-  if (existsSync(signtool)) {
-    const signArgs = ['sign', '/fd', 'SHA256', '/tr', 'http://timestamp.digicert.com', '/td', 'SHA256', '/f', pfx];
-    if (pfxPass) signArgs.push('/p', pfxPass);
-    signArgs.push(outExe);
-    execFileSync(signtool, signArgs, { stdio: 'inherit' });
-    console.log('Signed', exeName);
+  if (!signtool) {
+    console.warn('Certificate found but signtool missing — install Windows SDK (Signing Tools for Windows).');
+  } else if (!pfxPass) {
+    console.warn(
+      `Found ${pfx} but SCANNER_CODESIGN_PASSWORD is empty. Set it in .env (see .env.example) and rebuild to satisfy SmartScreen.`,
+    );
   } else {
-    console.warn('signtool not found — ship unsigned or set SCANNER_CODESIGN_PFX after installing Windows SDK');
+    const signArgs = [
+      'sign',
+      '/fd',
+      'SHA256',
+      '/tr',
+      'http://timestamp.digicert.com',
+      '/td',
+      'SHA256',
+      '/f',
+      pfx,
+      '/p',
+      pfxPass,
+      outExe,
+    ];
+    execFileSync(signtool, signArgs, { stdio: 'inherit' });
+    console.log('Authenticode signed:', exeName);
   }
+} else {
+  console.warn('No signing certificate — SmartScreen may warn. Set SCANNER_CODESIGN_PFX or place Certificate.pfx on Desktop.');
 }
 
 copyFileSync(outExe, join(apiData, exeName));
-console.log(`Created ${outExe} (${statSync(outExe).size} bytes, WinForms GUI)`);
+console.log(`Created ${outExe} (${statSync(outExe).size} bytes)`);
